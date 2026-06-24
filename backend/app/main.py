@@ -28,7 +28,7 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # Mount static files for uploads
-uploads_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "public", "uploads")
+uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "uploads")
 os.makedirs(uploads_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
@@ -836,7 +836,7 @@ def capture_photo(image_in: Dict[str, str]):
             return {"filename": file_url}
         else:
             # Create directory for local fallback
-            uploads_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "public", "uploads")
+            uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "uploads")
             os.makedirs(uploads_dir, exist_ok=True)
             file_path = os.path.join(uploads_dir, filename)
             
@@ -1013,7 +1013,7 @@ def export_pdf(db: Session = Depends(get_db)):
         
         return s.strip()
         
-    uploads_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "public", "uploads")
+    uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "uploads")
     
     for idx, issue in enumerate(issues):
         # Header for issue
