@@ -89,8 +89,11 @@ def db_seed():
                 Location(id="Zone E", name="Pivot Mechanism"),
                 Location(id="Zone F", name="Structural Core")
             ]
-            db.add_all(locs)
-            db.commit()
+            existing = db.query(Location).first()
+
+            if not existing:
+                db.add_all(locs)
+                db.commit()
             
             # Users
             pw_hash = get_password_hash("password123")
