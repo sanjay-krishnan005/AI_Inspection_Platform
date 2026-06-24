@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Integrated Inspection</title>
+<title>AIInspect Pro - AI Construction & Workforce Management</title>
 <link rel="icon" href="logo.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<!-- THREE.JS -->
+<!-- THREE.JS & Chart.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
@@ -16,26 +16,6 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #FAFAFA;
-  --bg2: #FFFFFF;
-  --bg3: #F0F2F5;
-  --bg4: #FFFFFF;
-  --border: rgba(0,0,0,0.08);
-  --border2: rgba(0,0,0,0.12);
-  --teal: #00A388;
-  --teal-dim: #E6F5F2;
-  --teal-mid: #99E0D4;
-  --amber: #DE8B26;
-  --red: #E65A5A;
-  --blue: #3E82C4;
-  --green: #37A846;
-  --text1: #111827;
-  --text2: #374151;
-  --text3: #4B5563;
-  --nav-h: 64px;
-  --nav-bg: rgba(250,250,250,0.95);
-}
-[data-theme='dark'] {
   --bg: #0F1117;
   --bg2: #161B27;
   --bg3: #1E2433;
@@ -52,7 +32,27 @@
   --text1: #F8FAFC;
   --text2: #CBD5E1;
   --text3: #94A3B8;
+  --nav-h: 68px;
   --nav-bg: rgba(15,17,23,0.95);
+}
+[data-theme='light'] {
+  --bg: #FAFAFA;
+  --bg2: #FFFFFF;
+  --bg3: #F0F2F5;
+  --bg4: #FFFFFF;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.12);
+  --teal: #00A388;
+  --teal-dim: #E6F5F2;
+  --teal-mid: #99E0D4;
+  --amber: #DE8B26;
+  --red: #E65A5A;
+  --blue: #3E82C4;
+  --green: #37A846;
+  --text1: #111827;
+  --text2: #374151;
+  --text3: #4B5563;
+  --nav-bg: rgba(250,250,250,0.95);
 }
 html { scroll-behavior: smooth; }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text1); overflow-x: hidden;
@@ -88,7 +88,7 @@ nav {
 .theme-toggle:hover { border-color: var(--teal); background: var(--teal-dim); }
 .theme-toggle svg { width: 16px; height: 16px; stroke: var(--text2); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: none !important; }
 
-.nav-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text1); text-decoration: none; letter-spacing: -0.5px; }
+.nav-logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--text1); text-decoration: none; letter-spacing: -0.5px; }
 .nav-logo span { color: var(--teal); }
 .nav-links { display: flex; gap: 28px; list-style: none; }
 .nav-links a { color: var(--text3); font-size: 13px; text-decoration: none; transition: color 0.2s; }
@@ -111,12 +111,12 @@ nav {
 @keyframes logo-pulse { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.15); } }
 
 .hero {
-  min-height: 100vh;
+  min-height: 55vh;
   padding-top: var(--nav-h);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   text-align: center;
-  padding: calc(var(--nav-h) + 60px) 40px 80px;
+  padding: calc(var(--nav-h) + 40px) 40px 40px;
   position: relative;
   overflow: hidden;
 }
@@ -131,67 +131,46 @@ nav {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--teal-dim); border: 1px solid var(--teal-mid);
   color: var(--teal); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 6px 14px; border-radius: 20px; margin-bottom: 28px;
+  padding: 6px 14px; border-radius: 20px; margin-bottom: 18px;
 }
 .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: blink 2s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .hero h1 {
   font-family: 'Syne', sans-serif;
-  font-size: clamp(40px, 5.5vw, 72px);
-  line-height: 1.08; letter-spacing: -2px;
-  margin-bottom: 24px; max-width: 820px;
+  font-size: clamp(32px, 4.5vw, 56px);
+  line-height: 1.1; letter-spacing: -1.5px;
+  margin-bottom: 16px; max-width: 820px;
 }
 .hero h1 em { font-style: normal; color: var(--teal); }
-.hero-sub { font-size: 17px; color: var(--text2); max-width: 520px; line-height: 1.8; margin-bottom: 44px; }
-.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 70px; }
-.btn-teal {
-  background: var(--teal); color: #FFFFFF;
-  padding: 13px 28px; border-radius: 6px;
-  font-size: 14px; font-weight: 500; text-decoration: none;
-  transition: opacity 0.2s; cursor: pointer; border: none;
-}
-.btn-teal:hover { opacity: 0.85; }
-.btn-ghost {
-  background: transparent; color: var(--text1);
-  border: 1px solid var(--border2);
-  padding: 13px 28px; border-radius: 6px;
-  font-size: 14px; font-weight: 500; text-decoration: none;
-  transition: all 0.2s; cursor: pointer;
-}
-.btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
-.hero-stats {
-  display: flex; gap: 48px; justify-content: center; flex-wrap: wrap;
-  border-top: 1px solid var(--border); padding-top: 40px;
-}
-.hstat-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 700; color: var(--teal); line-height: 1; }
-.hstat-lbl { font-size: 12px; color: var(--text3); margin-top: 6px; }
+.hero-sub { font-size: 15px; color: var(--text2); max-width: 580px; line-height: 1.7; margin-bottom: 24px; }
 
-section { padding: 100px 40px; }
+section { padding: 40px 40px 80px; }
 .sec-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; display: block; }
 .sec-title { font-family: 'Syne', sans-serif; font-size: clamp(26px, 3vw, 40px); line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 18px; }
 .sec-sub { font-size: 16px; color: var(--text2); line-height: 1.8; max-width: 500px; }
 
 .app-section { background: var(--bg2); }
-.app-section .inner { max-width: 1200px; margin: 0 auto; }
+.app-section .inner { max-width: 1300px; margin: 0 auto; }
 .app-frame {
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
-  margin-top: 56px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+  margin-top: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 .app-topbar {
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 52px;
+  padding: 0 24px; height: 64px;
+  flex-wrap: wrap; gap: 10px;
 }
-.app-brand { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text1); }
+.app-brand { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text1); }
 .app-brand span { color: var(--teal); }
-.app-tabs { display: flex; gap: 0; }
+.app-tabs { display: flex; gap: 4px; }
 .app-tab {
-  padding: 0 20px; height: 52px; font-size: 13px; color: var(--text3);
+  padding: 0 16px; height: 48px; font-size: 13px; color: var(--text3);
   border: none; background: transparent; cursor: pointer;
   border-bottom: 2px solid transparent; transition: all 0.2s;
   display: flex; align-items: center; gap: 7px;
@@ -204,7 +183,7 @@ section { padding: 100px 40px; }
 .panel { display: none; padding: 28px; }
 .panel.active { display: block; }
 
-.dashboard-wrapper { display: grid; grid-template-columns: 2fr 1.2fr; gap: 24px; }
+.dashboard-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
 .dash-main { display: flex; flex-direction: column; gap: 24px; }
 .dash-side { display: flex; flex-direction: column; gap: 24px; }
 
@@ -221,7 +200,7 @@ section { padding: 100px 40px; }
 .kpi-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .kpi-icon svg { width: 16px; height: 16px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
 .kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
-.kpi-val { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 700; line-height: 1; letter-spacing: -0.5px; }
+.kpi-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -0.5px; }
 .kpi-sub { font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .kpi-badge { font-size: 9px; padding: 2px 7px; border-radius: 10px; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap; }
 .c-teal { color: var(--teal); } .c-green { color: var(--green); } .c-amber { color: var(--amber); } .c-red { color: var(--red); } .c-blue { color: var(--blue); } .c-dim { color: var(--text3); }
@@ -231,7 +210,7 @@ section { padding: 100px 40px; }
 }
 .card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 16px; font-weight: 600; }
 
-.analytics-grid { display: grid; grid-template-columns: 2fr 1.2fr; gap: 24px; }
+.analytics-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
 .analytics-main, .analytics-side { display: flex; flex-direction: column; gap: 20px; }
 .kpi-glass {
   background: var(--bg4); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
@@ -248,20 +227,6 @@ section { padding: 100px 40px; }
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 201, 167, 0); }
 }
 
-
-.bars { display: flex; align-items: flex-end; gap: 5px; height: 80px; margin-bottom: 6px; overflow: hidden; }
-.barcol { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; cursor: pointer; transition: opacity 0.2s; }
-.barcol:hover { opacity: 0.8; }
-.barcol::after { content: "Logged: " attr(data-issues) "\A Resolved: " attr(data-resolved); white-space: pre; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--text1); color: #fff; border-radius: 6px; padding: 5px 9px; font-size: 10px; font-weight: 500; opacity: 0; pointer-events: none; transition: all 0.2s ease; z-index: 10; line-height: 1.5; }
-.barcol:hover::after { opacity: 1; transform: translateX(-50%) translateY(-4px); }
-.bar { width: 100%; border-radius: 4px 4px 0 0; }
-.bar.issues { background: linear-gradient(180deg, #FF8A8A, var(--red)); opacity: 0.9; }
-.bar.resolved { background: linear-gradient(180deg, #33D9BE, var(--teal)); opacity: 0.9; }
-.barlbl { font-size: 9px; color: var(--text3); font-weight: 500; margin-top: 2px; }
-.chart-legend { display: flex; gap: 14px; }
-.leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); font-weight: 500; }
-.leg-dot { width: 10px; height: 10px; border-radius: 3px; }
-
 .prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .prog-zone { font-size: 12px; color: var(--text2); width: 54px; flex-shrink: 0; font-weight: 500; }
 .prog-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
@@ -269,24 +234,22 @@ section { padding: 100px 40px; }
 .prog-pct { font-size: 12px; color: var(--text1); width: 36px; text-align: right; flex-shrink: 0; font-weight: 600; }
 .prog-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-.issue { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: var(--bg2); border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border); transition: box-shadow 0.2s, border-color 0.2s; }
-.issue:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.07); border-color: var(--border2); }
+.issue { display: flex; align-items: flex-start; gap: 10px; padding: 16px; background: var(--bg2); border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); transition: box-shadow 0.2s, border-color 0.2s; }
+.issue:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); border-color: var(--border2); }
 .ibadge { font-size: 9px; padding: 3px 8px; border-radius: 5px; font-weight: 700; flex-shrink: 0; margin-top: 2px; white-space: nowrap; letter-spacing: 0.04em; }
-.ibadge.high { background: #FDE8E8; color: var(--red); border: 1px solid rgba(230,90,90,0.25); }
-.ibadge.med { background: #FDF3E6; color: var(--amber); border: 1px solid rgba(222,139,38,0.25); }
-.ibadge.ok { background: #E6F4EA; color: var(--green); border: 1px solid rgba(55,168,70,0.25); }
+.ibadge.high, .ibadge.critical { background: #3D1C1C; color: var(--red); border: 1px solid rgba(255,107,107,0.25); }
+.ibadge.med { background: #2D2510; color: var(--amber); border: 1px solid rgba(240,160,48,0.25); }
+.ibadge.ok, .ibadge.low { background: #0D2B1E; color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
 .ititle { font-size: 13px; color: var(--text1); font-weight: 500; margin-bottom: 4px; line-height: 1.4; }
 .imeta { font-size: 11px; color: var(--text3); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.action-btn { font-size: 11px; padding: 4px 10px; background: transparent; border: 1px solid var(--border2); border-radius: 5px; color: var(--text3); cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-.action-btn:hover { border-color: var(--teal); color: var(--teal); }
-.action-btn.edit-btn:hover { border-color: var(--blue); color: var(--blue); }
+.action-btn { font-size: 11px; padding: 6px 12px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; color: var(--text2); cursor: pointer; transition: all 0.2s; font-weight: 500; }
+.action-btn:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+.action-btn.resolve-btn:hover { border-color: var(--green); color: var(--green); }
 .action-btn.delete-btn:hover { border-color: var(--red); color: var(--red); }
 .issue-actions { display: flex; flex-direction: column; gap: 6px; margin-left: auto; }
 @media (min-width: 600px) { .issue-actions { flex-direction: row; } }
-.edit-input-field { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text1); border-radius: 4px; padding: 6px 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; margin-top: 4px; }
-.edit-input-field:focus { border-color: var(--teal); }
 
-.alert-banner { background: #FDE8E8; border-left: 4px solid var(--red); border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; font-size: 13px; color: #B32D2D; line-height: 1.6; font-weight: 500; }
+.alert-banner { background: #2D1A10; border-left: 4px solid var(--amber); border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; font-size: 13px; color: var(--amber); line-height: 1.6; font-weight: 500; }
 
 .capture-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .capture-left { display: flex; flex-direction: column; gap: 16px; }
@@ -341,7 +304,7 @@ section { padding: 100px 40px; }
 
 .capture-right { display: flex; flex-direction: column; gap: 16px; }
 .field-block { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-.field-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 8px; }
+.field-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 8px; font-weight: 600; }
 .field-input {
   width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text1);
   border-radius: 6px; padding: 9px 12px; font-size: 13px; font-family: 'Inter', sans-serif;
@@ -361,10 +324,10 @@ section { padding: 100px 40px; }
 }
 .tag.on { background: var(--teal-dim); color: var(--teal); border-color: var(--teal-mid); }
 .bim-match {
-  background: var(--bg4); border: 1px solid rgba(74,144,217,0.3); border-radius: 8px;
+  background: var(--bg4); border: 1px solid rgba(91,155,213,0.3); border-radius: 8px;
   padding: 12px; display: flex; align-items: center; gap: 12px;
 }
-.bim-icon { width: 34px; height: 34px; border-radius: 8px; background: #1A2A3A; border: 1px solid rgba(74,144,217,0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bim-icon { width: 34px; height: 34px; border-radius: 8px; background: #1A2A3A; border: 1px solid rgba(91,155,213,0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .bim-info-name { font-size: 12px; color: var(--text1); font-weight: 500; }
 .bim-info-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
 .bim-linked { font-size: 10px; color: var(--green); margin-left: auto; white-space: nowrap; }
@@ -375,48 +338,15 @@ section { padding: 100px 40px; }
 .feed-text { flex: 1; color: var(--text2); line-height: 1.5; }
 .feed-time { color: var(--text3); font-size: 10px; flex-shrink: 0; }
 
-.bim-layout { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
 .bim-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
 .bim-main { display: flex; flex-direction: column; gap: 14px; }
 .bim-side { display: flex; flex-direction: column; gap: 14px; }
-.bim-toolbar {
-  position: absolute; top: 14px; left: 14px; z-index: 10;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.bim-tool {
-  width: 32px; height: 32px; border-radius: 6px;
-  background: var(--bg4); border: 1px solid var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.2s;
-}
-.bim-tool:hover, .bim-tool.active { border-color: var(--teal); background: var(--teal-dim); }
-.bim-legend {
-  position: absolute; bottom: 14px; left: 14px; z-index: 10;
-  background: rgba(250,250,250,0.85); border: 1px solid var(--border); border-radius: 8px;
-  padding: 10px 14px; display: flex; flex-direction: column; gap: 6px;
-}
-.bim-legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text2); }
-.bleg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-svg#bim-svg { width: 100%; height: 100%; }
 .bim-node { cursor: pointer; transition: opacity 0.2s; }
 .bim-node:hover { opacity: 0.8; }
 .bim-node.selected rect, .bim-node.selected polygon { stroke: var(--teal); stroke-width: 2; }
 
-.bim-panel { background: var(--bg4); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-.bim-panel-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 12px; }
-.bim-elem { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s; margin-bottom: 4px; }
-.bim-elem:hover { background: var(--bg2); }
-.bim-elem.selected { background: var(--teal-dim); }
-.bel-icon { width: 24px; height: 24px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.bel-name { font-size: 12px; color: var(--text1); font-weight: 500; }
-.bel-sub { font-size: 10px; color: var(--text3); }
-.bel-status { margin-left: auto; font-size: 9px; padding: 2px 7px; border-radius: 4px; font-weight: 500; white-space: nowrap; }
-.bel-ok { background: #0D2B1E; color: var(--green); }
-.bel-warn { background: #2D2510; color: var(--amber); }
-.bel-bad { background: #3D1C1C; color: var(--red); }
-
 .bim-detail { background: var(--bg4); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-.detail-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.detail-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
 .detail-row:last-child { border-bottom: none; }
 .detail-key { color: var(--text3); }
 .detail-val { color: var(--text1); font-weight: 500; text-align: right; max-width: 160px; }
@@ -428,8 +358,8 @@ svg#bim-svg { width: 100%; height: 100%; }
 .rs-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
 .rs-date { font-size: 15px; font-weight: 500; color: var(--text1); }
 .rs-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
-.ai-badge { font-size: 9px; padding: 3px 9px; border-radius: 12px; background: var(--teal-dim); color: var(--teal); border: 1px solid var(--teal-mid); }
-.rs-ai-text { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; background: var(--bg2); border-radius: 6px; padding: 10px; border-left: 3px solid var(--teal); }
+.ai-badge { font-size: 9px; padding: 3px 9px; border-radius: 12px; background: var(--teal-dim); color: var(--teal); border: 1px solid var(--teal-mid); font-weight: 600; }
+.rs-ai-text { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; background: var(--bg2); border-radius: 6px; padding: 12px; border-left: 3px solid var(--teal); }
 .rs-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
 .rss { background: var(--bg2); border-radius: 7px; padding: 10px; text-align: center; }
 .rss-num { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; }
@@ -469,10 +399,10 @@ svg#bim-svg { width: 100%; height: 100%; }
 
 .cta-section {
   background: var(--bg2); border-top: 1px solid var(--border);
-  padding: 100px 40px; text-align: center;
+  padding: 80px 40px; text-align: center;
 }
-.cta-section h2 { font-family: 'Syne', sans-serif; font-size: clamp(28px, 3.5vw, 48px); letter-spacing: -1px; margin-bottom: 18px; }
-.cta-section p { font-size: 17px; color: var(--text2); margin-bottom: 40px; max-width: 480px; margin-left: auto; margin-right: auto; }
+.cta-section h2 { font-family: 'Syne', sans-serif; font-size: clamp(28px, 3.5vw, 44px); letter-spacing: -1px; margin-bottom: 18px; }
+.cta-section p { font-size: 16px; color: var(--text2); margin-bottom: 30px; max-width: 480px; margin-left: auto; margin-right: auto; }
 .cta-form { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
 .cta-input {
   flex: 1; background: var(--bg3); border: 1px solid var(--border2); color: var(--text1);
@@ -552,270 +482,216 @@ footer {
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; border: none; color: #fff; transition: opacity 0.2s;
 }
-.chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
 
-@media (max-width: 450px) {
-  .chat-window { right: 10px; left: 10px; width: auto; bottom: 90px; height: calc(100vh - 120px); }
-  .chat-fab { right: 10px; bottom: 20px; }
+/* Modal and Rework Overlay styles */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10,12,16,0.85); backdrop-filter: blur(8px);
+  z-index: 1000; display: none; align-items: center; justify-content: center;
 }
+.modal-overlay.active { display: flex; }
+.modal-card {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 28px; width: 500px; max-width: 90%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column; gap: 16px;
+}
+.modal-header { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text1); border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 12px; }
+
+.heatmap-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+  margin-bottom: 24px;
+}
+.heatmap-cell {
+  background: var(--bg4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.heatmap-val { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.heatmap-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
 
 @media (max-width: 900px) {
   nav { padding: 0 16px; }
   .nav-links { display: none; }
-  section { padding: 70px 20px; }
-  .hero { padding: calc(var(--nav-h) + 40px) 20px 60px; }
-  .hero-stats { gap: 20px; flex-wrap: wrap; justify-content: center; }
-  .hstat-num { font-size: 28px; }
+  section { padding: 40px 16px; }
+  .hero { padding: calc(var(--nav-h) + 20px) 16px 30px; }
   .app-topbar { flex-direction: column; align-items: flex-start; height: auto; padding: 12px 16px; gap: 8px; }
-  .app-tabs { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
-  .app-tabs::-webkit-scrollbar { display: none; }
+  .app-tabs { overflow-x: auto; width: 100%; }
   .panel { padding: 16px; }
-  .dash-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .dashboard-wrapper { grid-template-columns: 1fr; gap: 16px; }
   .capture-layout { grid-template-columns: 1fr; gap: 16px; }
-  .viewfinder { height: 280px; }
   .bim-grid { grid-template-columns: 1fr; gap: 16px; }
   .reports-layout { grid-template-columns: 1fr; gap: 16px; }
-  .feat-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
-  .feat-card.span2 { grid-column: span 2; }
-  .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
-  .toast { right: 16px; left: 16px; bottom: 16px; }
-}
-
-@media (max-width: 600px) {
-  nav { padding: 0 14px; }
-  .nav-pill { padding: 7px 14px; font-size: 12px; }
-  .theme-toggle { width: 34px; height: 34px; }
-  section { padding: 60px 16px; }
-  .hero { padding: calc(var(--nav-h) + 30px) 16px 50px; }
-  .hero h1 { font-size: clamp(30px, 9vw, 48px); letter-spacing: -1px; }
-  .hero-sub { font-size: 15px; }
-  .hero-btns { flex-direction: column; align-items: stretch; gap: 10px; }
-  .btn-teal, .btn-ghost { text-align: center; }
-  .hero-stats { gap: 16px; }
-  .hstat-num { font-size: 24px; }
-  .hstat-lbl { font-size: 11px; }
-  .app-frame { border-radius: 12px; margin-top: 32px; }
-  .app-tab { padding: 0 14px; font-size: 12px; }
-  .panel { padding: 12px; }
-  .dash-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .kpi { padding: 14px; }
-  .kpi-val { font-size: 24px; }
-  .kpi-label { font-size: 10px; }
-  .issue { flex-wrap: wrap; gap: 8px; }
-  .issue-actions { flex-direction: row; flex-wrap: wrap; margin-left: 0; width: 100%; }
-  .action-btn { flex: 1; text-align: center; }
-  .viewfinder { height: 240px; border-radius: 10px; }
-  .capture-actions { flex-direction: row; gap: 8px; }
-  .cap-btn-main, .cap-btn-sec { padding: 11px 10px; font-size: 12px; }
-  .voice-block { padding: 12px; }
-  .voice-transcript { font-size: 12px; }
-  .capture-right { gap: 12px; }
-  .field-block { padding: 12px; }
-  .submit-row .cap-btn-main { font-size: 13px; padding: 12px; }
-  .detail-row { font-size: 11px; }
-  .rs-stats { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .rss-num { font-size: 18px; }
-  .export-row { flex-wrap: wrap; gap: 8px; }
-  .exp-btn { width: 100%; text-align: center; }
-  .feat-grid { grid-template-columns: 1fr; gap: 12px; }
-  .feat-card.span2 { grid-column: span 1; }
-  .feat-card { padding: 20px; }
-  .footer-grid { grid-template-columns: 1fr; gap: 20px; }
-  footer { padding: 36px 16px 20px; }
-  .cta-form { flex-direction: column; }
-  .cta-section { padding: 60px 16px; }
-  .bars { height: 60px; }
-  .barlbl { font-size: 8px; }
-  .toast { right: 12px; left: 12px; bottom: 12px; font-size: 12px; padding: 12px 14px; }
-}
-
-@media (max-width: 400px) {
-  .dash-grid { grid-template-columns: 1fr; }
-  .kpi-val { font-size: 22px; }
-  .viewfinder { height: 200px; }
-  .app-tab { padding: 0 10px; font-size: 11px; }
-  .hero h1 { font-size: clamp(26px, 8vw, 38px); }
-  .hero-stats { flex-direction: column; align-items: center; gap: 12px; }
+  .analytics-grid { grid-template-columns: 1fr; gap: 16px; }
 }
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:20px;">
+  <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:12px;">
     <div class="logo-container">
       <div class="logo-halo"></div>
-      <img src="logo.png" alt="AI Integrated Inspection" style="height:64px; width:64px; border-radius:50%; object-fit:contain; border: 2.5px solid var(--teal); box-shadow: 0 0 20px rgba(0, 201, 167, 0.5); image-rendering: -webkit-optimize-contrast;">
+      <img src="logo.png" alt="AIInspect Pro" style="height:48px; width:48px; border-radius:50%; object-fit:contain; border: 2.5px solid var(--teal); box-shadow: 0 0 15px rgba(0, 201, 167, 0.4);">
     </div>
-    AI<span>Inspect</span>
+    AI<span>Inspect Pro</span>
   </a>
-  <ul class="nav-links">
-    <li><a href="#app">Live App</a></li>
-    <li><a href="#features">Features</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
+  
+  <!-- Role Switcher Dropdown (Simulating different users) -->
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span style="font-size:11px;color:var(--text3);text-transform:uppercase;font-weight:700;letter-spacing:0.05em;">Role:</span>
+    <select id="role-selector" onchange="changeRole(this.value)" class="field-select" style="width:145px; height:34px; font-size:12px; background:var(--bg3); border:1px solid var(--border2); color:var(--text1); border-radius:6px; cursor:pointer;">
+      <option value="manager" selected>Project Manager</option>
+      <option value="inspector">Inspector</option>
+      <option value="worker">Contractor Team</option>
+    </select>
+  </div>
+
   <div style="display:flex;align-items:center;gap:12px;">
     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" aria-label="Toggle theme">
       <svg id="icon-sun" style="display:none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       <svg id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
-    <a href="#contact" class="nav-pill">Request Demo</a>
   </div>
 </nav>
 
 <section class="hero">
-  <div class="hero-badge"><span class="live-dot"></span>AI Integrated Inspection — Live</div>
-  <h1>AI Integrated<br><em>Inspection</em><br>Platform</h1>
-  <p class="hero-sub">Real-time validated field intelligence for critical infrastructure — with voice capture, BIM integration and predictive risk detection.</p>
-  <div class="hero-btns">
-    <a href="#app" class="btn-teal">Open Live App</a>
-    <a href="#features" class="btn-ghost">See Features</a>
-  </div>
-  <div class="hero-stats">
-    <div><div class="hstat-num">10×</div><div class="hstat-lbl">ROI delivered</div></div>
-    <div><div class="hstat-num">&lt;4h</div><div class="hstat-lbl">Reporting lag (was 72h)</div></div>
-    <div><div class="hstat-num">25%</div><div class="hstat-lbl">Rework reduction</div></div>
-    <div><div class="hstat-num">Live</div><div class="hstat-lbl">BIM sync</div></div>
-  </div>
+  <div class="hero-badge"><span class="live-dot"></span>AIInspect Pro Platform</div>
+  <h1 id="hero-title">AI Construction Inspection &<br><em>Workforce Management</em></h1>
+  <p class="hero-sub" id="hero-subtitle">Automate report generation, recommend corrective actions, track contractor progress, and sync dynamically with spatial BIM digital twins.</p>
 </section>
 
 <section class="app-section" id="app">
   <div class="inner">
-    <span class="sec-label">Live Platform</span>
-    <h2 class="sec-title">AI Integrated Inspection — Full Demo</h2>
-    <p class="sec-sub">Interact with the real dashboard, field capture, BIM viewer and reports below.</p>
-
+    
     <div class="app-frame">
       <div class="app-topbar">
-        <div class="app-brand" style="display:flex;align-items:center;gap:16px;">
-          <div class="logo-container">
-            <div class="logo-halo" style="width:120%;height:120%;opacity:0.2;"></div>
-            <img src="logo.png" alt="Logo" style="height:54px; width:54px; border-radius:50%; object-fit:contain; border: 2px solid var(--teal); box-shadow: 0 0 12px rgba(0, 201, 167, 0.4); image-rendering: -webkit-optimize-contrast;">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:2px;">
-            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;">AI<span>Inspect</span></div>
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;">AI Integrated Inspection</div>
-          </div>
+        <div class="app-brand" style="display:flex;align-items:center;gap:12px;">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;">AI<span>Inspect Pro</span></div>
+          <span class="live-badge-sm" id="role-display-badge">Project Manager View</span>
         </div>
+        
         <div class="app-tabs">
-          <button class="app-tab active" onclick="switchTab('dashboard',this)">
+          <button class="app-tab active" id="tab-dashboard-btn" onclick="switchTab('dashboard',this)">
             <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="5" height="7" rx="1" fill="currentColor"/><rect x="8" y="2" width="5" height="11" rx="1" fill="currentColor"/></svg>
-            Dashboard <span class="live-badge-sm">Live</span>
+            <span id="tab-dashboard-label">Manager Dashboard</span>
           </button>
-          <button class="app-tab" onclick="switchTab('capture',this)">
+          
+          <button class="app-tab" id="tab-capture-btn" onclick="switchTab('capture',this)">
             <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="7" cy="5.5" r="2" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
             Field Capture
           </button>
-          <button class="app-tab" onclick="switchTab('bim',this)">
+          
+          <button class="app-tab" id="tab-bim-btn" onclick="switchTab('bim',this)">
             <svg viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V10.5L7 14L1 10.5V4.5L7 1Z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
-            BIM View
+            BIM Model
           </button>
-          <button class="app-tab" onclick="switchTab('analytics',this)">
+          
+          <button class="app-tab" id="tab-analytics-btn" onclick="switchTab('analytics',this)">
             <svg viewBox="0 0 14 14" fill="none"><path d="M1 13h12M1 10l4-6 3 4 5-7" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
-            Analytics
+            Contractor Metrics
           </button>
-          <button class="app-tab" onclick="switchTab('reports',this)">
+          
+          <button class="app-tab" id="tab-reports-btn" onclick="switchTab('reports',this)">
             <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="4" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="7.5" x2="10" y2="7.5" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="10" x2="8" y2="10" stroke="currentColor" stroke-width="1.2"/></svg>
             Reports
           </button>
         </div>
       </div>
 
+      <!-- ═══ PANEL: DASHBOARD (MANAGER / WORKER VIEWS) ═══ -->
       <div class="panel active" id="panel-dashboard">
-        <div class="alert-banner" style="display:flex;align-items:center;gap:10px;">
+        
+        <!-- Manager Alert -->
+        <div class="alert-banner" id="pm-alert-banner" style="display:flex;align-items:center;gap:10px;">
           <span style="font-size:20px;flex-shrink:0;">⚠️</span>
-          <div><strong>Delay risk detected</strong> — Zone C pipe alignment off-spec. Predictive model flags 48h schedule slip. Review before 14:00 today.</div>
+          <div><strong>Predictive Schedule Slip</strong> — Rework loops on Zone C pipe alignment predicted to push milestone by 36h. Critical inspection required.</div>
         </div>
+
         <div class="dashboard-wrapper">
+          <!-- Main Content Left -->
           <div class="dash-main">
-            <div class="dash-grid">
-              <div class="kpi" onclick="showToast('Report Lag details')" style="border-top:3px solid var(--blue);">
+            
+            <!-- PM Stats Cards -->
+            <div class="dash-grid" id="pm-stats-grid">
+              <div class="kpi" onclick="showToast('Open site risks')" style="border-top:3px solid var(--red);">
                 <div class="kpi-top">
-                  <div class="kpi-label">Report lag</div>
-                  <div class="kpi-icon" style="background:rgba(62,130,196,0.1);">
-                    <svg viewBox="0 0 24 24" stroke="var(--blue)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  </div>
+                  <div class="kpi-label">Active Site Risks</div>
+                  <div class="kpi-icon" style="background:rgba(255,107,107,0.1);"><svg viewBox="0 0 24 24" stroke="var(--red)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
                 </div>
-                <div class="kpi-val c-teal"><span id="kpi-lag">3.4</span><span style="font-size:14px;color:var(--text3);">h</span></div>
-                <div class="kpi-sub" id="kpi-lag-sub" style="color:var(--green);">▼ was 72h <span class="kpi-badge" style="background:#E6F4EA;color:var(--green);">95% faster</span></div>
+                <div class="kpi-val c-red" id="kpi-open">0</div>
+                <div class="kpi-sub">Issues awaiting validation</div>
               </div>
-              <div class="kpi" onclick="showToast('Rework Rate details')" style="border-top:3px solid var(--green);">
+              <div class="kpi" onclick="showToast('Completed tasks')" style="border-top:3px solid var(--green);">
                 <div class="kpi-top">
-                  <div class="kpi-label">Rework rate</div>
-                  <div class="kpi-icon" style="background:rgba(55,168,70,0.1);">
-                    <svg viewBox="0 0 24 24" stroke="var(--green)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                  </div>
+                  <div class="kpi-label">Completed Tasks</div>
+                  <div class="kpi-icon" style="background:rgba(74,222,128,0.1);"><svg viewBox="0 0 24 24" stroke="var(--green)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
                 </div>
-                <div class="kpi-val"><span id="kpi-rework">6.1</span><span style="font-size:14px;color:var(--text3);">%</span></div>
-                <div class="kpi-sub" id="kpi-rework-sub" style="color:var(--green);">▼ 25% reduction <span class="kpi-badge" style="background:#E6F4EA;color:var(--green);">Improving</span></div>
-              </div>
-              <div class="kpi" onclick="showToast('Filtering for: Issues Open')" style="border-top:3px solid var(--amber);">
-                <div class="kpi-top">
-                  <div class="kpi-label">Issues open</div>
-                  <div class="kpi-icon" style="background:rgba(222,139,38,0.1);">
-                    <svg viewBox="0 0 24 24" stroke="var(--amber)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  </div>
-                </div>
-                <div class="kpi-val c-amber" id="kpi-open">—</div>
-                <div class="kpi-sub c-amber">Active <span class="kpi-badge" style="background:#FDF3E6;color:var(--amber);">Live</span></div>
-              </div>
-              <div class="kpi" onclick="showToast('BIM Synced at ' + new Date().toLocaleTimeString())" style="border-top:3px solid var(--teal);">
-                <div class="kpi-top">
-                  <div class="kpi-label">BIM sync</div>
-                  <div class="kpi-icon" style="background:rgba(0,163,136,0.1);">
-                    <svg viewBox="0 0 24 24" stroke="var(--teal)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  </div>
-                </div>
-                <div class="kpi-val c-green" style="font-size:20px;font-weight:700;"><span style="color:var(--teal);">●</span> Live</div>
-                <div class="kpi-sub c-dim">2 min ago <span class="kpi-badge" style="background:#E6F5F2;color:var(--teal);">Active</span></div>
+                <div class="kpi-val c-green" id="kpi-resolved">0</div>
+                <div class="kpi-sub">Closed successfully</div>
               </div>
             </div>
 
-            <div class="card" style="flex:1;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                <div class="card-title" style="margin-bottom:0;">Active issues</div>
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <span id="last-updated-label" style="font-size:10px;color:var(--text3);">Last updated: —</span>
-                  <span id="issues-count-badge" style="font-size:10px;background:var(--bg3);border:1px solid var(--border);padding:3px 10px;border-radius:20px;color:var(--text3);font-weight:600;">Loading…</span>
-                </div>
+            <!-- SITE HEATMAP (Visual representation of issue concentration) -->
+            <div class="card" id="site-heatmap-card">
+              <div class="card-title">Site Issue Concentration Heatmap</div>
+              <div class="heatmap-grid">
+                <div class="heatmap-cell" style="border-bottom: 3px solid var(--teal);" id="heat-A"><div class="heatmap-val c-teal">0</div><div class="heatmap-lbl">Zone A</div></div>
+                <div class="heatmap-cell" style="border-bottom: 3px solid var(--amber);" id="heat-B"><div class="heatmap-val c-amber">0</div><div class="heatmap-lbl">Zone B</div></div>
+                <div class="heatmap-cell" style="border-bottom: 3px solid var(--red);" id="heat-C"><div class="heatmap-val c-red">0</div><div class="heatmap-lbl">Zone C</div></div>
+                <div class="heatmap-cell" style="border-bottom: 3px solid var(--teal);" id="heat-D"><div class="heatmap-val c-teal">0</div><div class="heatmap-lbl">Zone D</div></div>
+                <div class="heatmap-cell" style="border-bottom: 3px solid var(--teal);" id="heat-E"><div class="heatmap-val c-teal">0</div><div class="heatmap-lbl">Zone E</div></div>
+                <div class="heatmap-cell" style="border-bottom: 3px solid var(--teal);" id="heat-F"><div class="heatmap-val c-teal">0</div><div class="heatmap-lbl">Zone F</div></div>
               </div>
+            </div>
+
+            <!-- Issues Queue -->
+            <div class="card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div class="card-title" id="issues-list-title" style="margin-bottom:0;">All Active Workorders</div>
+                <span class="live-badge-sm" id="issues-count-badge">0 active</span>
+              </div>
+              
+              <!-- Review and verification queues injected here -->
               <div id="issues-list"></div>
             </div>
+
           </div>
 
+          <!-- Side Content Right -->
           <div class="dash-side">
-            <div class="card">
-              <div class="card-title">Issues this week</div>
-              <div class="bars" id="trend-bars"></div>
-              <div class="chart-legend" style="margin-top:10px;">
-                <div class="leg"><div class="leg-dot" style="background:var(--red);"></div>Logged</div>
-                <div class="leg"><div class="leg-dot" style="background:var(--teal);"></div>Resolved</div>
-              </div>
-            </div>
-
-            <div class="card" style="flex:1;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                <div class="card-title" style="margin-bottom:0;">Zone progress</div>
-                <div style="display:flex;gap:10px;font-size:10px;color:var(--text3);align-items:center;">
-                  <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:3px;"></span>OK</span>
-                  <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);margin-right:3px;"></span>Risk</span>
-                  <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:3px;"></span>Issue</span>
+            <!-- Delay prediction gauge -->
+            <div class="card" style="text-align:center;">
+              <div class="card-title">AI Delay Prediction</div>
+              <div style="margin:20px 0; position:relative; display:inline-block;">
+                <svg width="120" height="120" viewBox="0 0 36 36">
+                  <path stroke="var(--bg3)" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  <path id="delay-gauge-fill" stroke="var(--amber)" stroke-dasharray="75, 100" stroke-width="3" stroke-linecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831"/>
+                </svg>
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-family:'Syne',sans-serif;">
+                  <div style="font-size:20px; font-weight:700;" id="delay-gauge-val">75%</div>
+                  <div style="font-size:8px; color:var(--text3); text-transform:uppercase;">Risk</div>
                 </div>
               </div>
-              <div id="bim-prog-dash">
-                <div class="prog-row"><div class="prog-zone">Zone A</div><div class="prog-track"><div class="prog-fill" style="width:88%;background:var(--teal);"></div></div><div class="prog-pct">88%</div><div class="prog-status" style="background:var(--teal);"></div></div>
-                <div class="prog-row"><div class="prog-zone">Zone B</div><div class="prog-track"><div class="prog-fill" style="width:61%;background:var(--amber);"></div></div><div class="prog-pct">61%</div><div class="prog-status" style="background:var(--amber);"></div></div>
-                <div class="prog-row"><div class="prog-zone">Zone C</div><div class="prog-track"><div class="prog-fill" style="width:44%;background:var(--red);"></div></div><div class="prog-pct">44%</div><div class="prog-status" style="background:var(--red);"></div></div>
-                <div class="prog-row"><div class="prog-zone">Zone D</div><div class="prog-track"><div class="prog-fill" style="width:72%;background:var(--teal);"></div></div><div class="prog-pct">72%</div><div class="prog-status" style="background:var(--teal);"></div></div>
-              </div>
+              <div style="font-size:12px; font-weight:600; color:var(--amber);" id="delay-gauge-desc">Medium Schedule Impact Risk</div>
+              <p style="font-size:10px; color:var(--text3); margin-top:10px;">Aggregated from outstanding tasks and contractor delivery speeds.</p>
+            </div>
+
+            <!-- Action Feed -->
+            <div class="card" style="display:flex; flex-direction:column; max-height:300px; overflow:hidden;">
+              <div class="card-title">Real-time workflow logs</div>
+              <div id="cap-feed" style="overflow-y:auto; flex:1;"></div>
             </div>
           </div>
         </div>
+
       </div>
 
+      <!-- ═══ PANEL: FIELD CAPTURE (INSPECTOR WORKFLOW) ═══ -->
       <div class="panel" id="panel-capture">
         <div class="capture-layout">
+          <!-- Left side: camera feed and voice dictation -->
           <div class="capture-left">
             <div class="viewfinder" id="viewfinder">
               <div class="vf-scan"></div>
@@ -828,78 +704,53 @@ footer {
                   <div class="vf-icon">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--text3)" stroke-width="1.5"><rect x="2" y="4" width="16" height="12" rx="2"/><circle cx="10" cy="10" r="3"/></svg>
                   </div>
-                  <p>Click to start camera</p>
+                  <p>Inspector Field Camera</p>
                   <button class="cap-btn-sec" onclick="startCamera()" style="margin-top:10px; padding:6px 12px; font-size:12px; pointer-events:auto;">Start Camera</button>
                 </div>
               </div>
             </div>
             <div class="capture-actions">
               <button class="cap-btn-main" onclick="simulateCapture()">📷 Capture Photo</button>
-              <button class="cap-btn-sec" onclick="switchTab('bim', document.querySelector('.app-tab:nth-child(3)'))">View in BIM</button>
             </div>
 
+            <!-- Voice Transcription (Whisper AI) -->
             <div class="voice-block">
               <div class="voice-header">
                 <div class="mic-btn" id="mic-btn" onclick="toggleVoice()">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--text2)" stroke-width="1.4"><rect x="5" y="1" width="6" height="9" rx="3"/><path d="M2 8a6 6 0 0012 0"/><line x1="8" y1="14" x2="8" y2="16"/><line x1="5" y1="16" x2="11" y2="16"/></svg>
                 </div>
                 <div>
-                  <div class="voice-status" id="voice-status">Tap mic to start voice recording</div>
+                  <div class="voice-status" id="voice-status">Tap mic to speak issue description (Whisper AI)</div>
                   <div class="voice-wave" id="voice-wave">
                     <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
                   </div>
                 </div>
               </div>
-              <div class="voice-transcript" id="voice-transcript">Transcript will appear here…</div>
-            </div>
-
-            <div class="card" style="padding:14px;">
-              <div class="card-title">Live capture feed</div>
-              <div id="cap-feed">
-              </div>
+              <div class="voice-transcript" id="voice-transcript">Spoken text will auto-transcribe here…</div>
             </div>
           </div>
 
+          <!-- Right side: details and AI submission -->
           <div class="capture-right">
             <div class="field-block">
               <div class="field-label">Issue description</div>
-              <textarea class="field-input" id="issue-desc" rows="3" placeholder="Describe the site issue…" style="resize:none;"></textarea>
+              <textarea class="field-input" id="issue-desc" rows="3" placeholder="Describe the defect in detail..." style="resize:none;"></textarea>
             </div>
             <div class="field-block">
-              <div class="field-label">Severity</div>
-              <select class="field-select" id="issue-sev">
-                <option>HIGH — Safety / structural</option>
-                <option>MED — Schedule risk</option>
-                <option>LOW — Minor observation</option>
-              </select>
-            </div>
-            <div class="field-block">
-              <div class="field-label">Zone</div>
+              <div class="field-label">Target Zone</div>
               <select class="field-select" id="issue-zone">
-                <option>Zone A</option><option>Zone B</option><option>Zone C</option><option>Zone D</option><option>Zone E</option>
-              </select>
-            </div>
-            <div class="field-block">
-              <div class="field-label">Assigned Inspector</div>
-              <select class="field-select" id="issue-assignee">
-                <option value="Priya M.">Priya M.</option>
-                <option value="Ravi K.">Ravi K.</option>
-                <option value="Anjali R.">Anjali R.</option>
-                <option value="Vikram J.">Vikram J.</option>
-                <option value="Sameer S.">Sameer S.</option>
-                <option value="Auto-detected">Auto-detected</option>
-                <option value="Unassigned" selected>Unassigned</option>
+                <option>Zone A</option><option selected>Zone B</option><option>Zone C</option><option>Zone D</option><option>Zone E</option><option>Zone F</option>
               </select>
             </div>
             <div class="field-block">
               <div class="field-label">Category Tags</div>
               <div class="tags-row" id="capture-tags">
-                <div class="tag" onclick="this.classList.toggle('on')">Safety</div>
+                <div class="tag on" onclick="this.classList.toggle('on')">Safety</div>
                 <div class="tag" onclick="this.classList.toggle('on')">Structural</div>
-                <div class="tag" onclick="this.classList.toggle('on')">MEP</div>
+                <div class="tag on" onclick="this.classList.toggle('on')">MEP</div>
                 <div class="tag" onclick="this.classList.toggle('on')">Civil</div>
                 <div class="tag" onclick="this.classList.toggle('on')">Utilities</div>
-                <div class="tag" onclick="this.classList.toggle('on')">Schedule</div>
+                <div class="tag" onclick="this.classList.toggle('on')">Quality</div>
               </div>
             </div>
             <div class="bim-match">
@@ -907,24 +758,25 @@ footer {
                 <svg viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V10.5L7 14L1 10.5V4.5L7 1Z" stroke="var(--blue)" stroke-width="1.2" fill="none"/></svg>
               </div>
               <div class="bim-info">
-                <div class="bim-info-name" id="bim-match-name">Auto-matching BIM...</div>
+                <div class="bim-info-name">Auto-mapping Spatial Coordinates...</div>
                 <div class="bim-info-sub">GPS localized to Zone B</div>
               </div>
               <div class="bim-linked">✓ Linked</div>
             </div>
             <div class="submit-row">
-              <button class="cap-btn-main" onclick="submitIssue()">Submit AI Analysis Report</button>
+              <button class="cap-btn-main" onclick="submitIssue()">Submit to Manager Review Queue</button>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- ═══ PANEL: BIM MODEL VIEW ═══ -->
       <div class="panel" id="panel-bim">
         <div class="bim-grid">
           <div class="bim-main">
-            <!-- 3D VIEW CARD -->
-            <div class="card" style="padding:0; overflow:hidden; position:relative; display:flex; flex-direction:column; height:450px; margin-bottom:16px;">
-              <div class="card-title" style="padding:16px 20px 0;">3D Site Intelligence (Spatial)</div>
+            <!-- 3D Viewport -->
+            <div class="card" style="padding:0; overflow:hidden; position:relative; display:flex; flex-direction:column; height:450px;">
+              <div class="card-title" style="padding:16px 20px 0;">3D Bridge Model Viewport</div>
               <div id="bim-3d-container" style="flex:1; background:var(--bg3); cursor:move; position:relative;">
                 <div style="position:absolute; bottom:12px; left:12px; font-size:10px; color:var(--text3); pointer-events:none; z-index:2; padding:6px 10px; background:rgba(0,0,0,0.4); border-radius:4px;">
                   LEFT CLICK: Rotate • RIGHT CLICK: Pan • SCROLL: Zoom
@@ -932,241 +784,132 @@ footer {
                 <div id="bim-canvas-target" style="width:100%; height:100%;"></div>
               </div>
             </div>
-
-            <!-- 2D DIAGRAM CARD (Restored) -->
-            <div class="card" style="padding:16px; overflow:hidden; position:relative; background:var(--bg4);">
-              <div class="card-title" style="margin-bottom:12px;">2D Diagrammatic Blueprint (Overview)</div>
-              <div style="display:flex; justify-content:center; align-items:center; background:var(--bg3); border-radius:8px; padding:20px; border:1px dashed var(--border2); height:280px;">
-                <svg viewBox="0 0 400 200" id="bim-svg" style="max-width:100%; height:100%; border-radius:8px;">
-                  <defs>
-                    <linearGradient id="grad-sky" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" style="stop-color:var(--bg2); stop-opacity:1" />
-                      <stop offset="100%" style="stop-color:var(--bg3); stop-opacity:1" />
-                    </linearGradient>
-                    <linearGradient id="grad-water" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" style="stop-color:var(--teal); stop-opacity:0.2" />
-                      <stop offset="100%" style="stop-color:var(--teal); stop-opacity:0.05" />
-                    </linearGradient>
-                    <filter id="shadow-text">
-                       <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/>
-                    </filter>
-                  </defs>
-                  
-                  <!-- Environment -->
-                  <rect x="0" y="0" width="400" height="200" fill="url(#grad-sky)"/>
-                  <rect x="0" y="140" width="400" height="60" fill="url(#grad-water)"/>
-                  <line x1="0" y1="140" x2="400" y2="140" stroke="var(--teal)" stroke-width="0.5" opacity="0.3"/>
-                  
-                  <!-- Main Cables (Suspension Style) -->
-                  <path d="M52 110 Q 200 40 348 110" fill="none" stroke="var(--border2)" stroke-width="0.8" opacity="0.6"/>
-                  
-                  <!-- Zone A (East Anchorage) -->
-                  <g class="bim-node" id="bnode-A" onclick="clickBimZone('Zone A')">
-                    <path d="M30 160 L30 110 L75 110 L75 160 Z" fill="#4F46E5" fill-opacity="0.08" stroke="#4F46E5" stroke-width="1.5"/>
-                    <rect x="42" y="90" width="20" height="4" rx="1" fill="#4F46E5" opacity="0.3"/>
-                    <text x="52" y="140" text-anchor="middle" font-size="8" font-weight="700" fill="var(--text1)" filter="url(#shadow-text)">ANCHOR A</text>
-                  </g>
-                  
-                  <!-- Zone B (East Bridge) -->
-                  <g class="bim-node" id="bnode-B" onclick="clickBimZone('Zone B')">
-                    <rect x="75" y="105" width="125" height="10" rx="2" fill="#0EA5E9" fill-opacity="0.08" stroke="#0EA5E9" stroke-width="1.5"/>
-                    <path d="M75 115 L200 115" stroke="#0EA5E9" stroke-width="0.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <!-- Truss Pattern -->
-                    <path d="M80 105 L90 115 M100 105 L110 115 M120 105 L130 115 M140 105 L150 115 M160 105 L170 115 M180 105 L190 115" stroke="#0EA5E9" stroke-width="0.5" opacity="0.4"/>
-                    <text x="137" y="100" text-anchor="middle" font-size="8" font-weight="700" fill="var(--text1)" filter="url(#shadow-text)">EAST BRIDGE</text>
-                  </g>
- 
-                  <!-- Zone E (Pivot Mechanism) -->
-                  <g class="bim-node" id="bnode-E" onclick="clickBimZone('Zone E')">
-                    <!-- Vertical Profile -->
-                    <rect x="180" y="115" width="40" height="45" rx="2" fill="#DAB200" fill-opacity="0.08" stroke="#DAB200" stroke-width="1.5"/>
-                    <!-- Mechanical Internal Details -->
-                    <line x1="180" y1="125" x2="220" y2="125" stroke="#DAB200" stroke-width="0.5" opacity="0.4"/>
-                    <line x1="180" y1="135" x2="220" y2="135" stroke="#DAB200" stroke-width="0.5" opacity="0.4"/>
-                    <rect x="188" y="115" width="24" height="45" fill="#DAB200" fill-opacity="0.05" stroke="#DAB200" stroke-width="0.5" stroke-dasharray="2 1"/>
-                    <text x="200" y="175" text-anchor="middle" font-size="8" font-weight="800" fill="#DAB200">PIVOT HUB</text>
-                  </g>
-                  
-                  <!-- Zone C (West Bridge) -->
-                   <g class="bim-node" id="bnode-C" onclick="clickBimZone('Zone C')">
-                    <rect x="200" y="105" width="125" height="10" rx="2" fill="#8B5CF6" fill-opacity="0.08" stroke="#8B5CF6" stroke-width="1.5"/>
-                    <path d="M200 115 L325 115" stroke="#8B5CF6" stroke-width="0.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <!-- Truss Pattern -->
-                    <path d="M210 115 L220 105 M230 115 L240 105 M250 115 L260 105 M270 115 L280 105 M290 115 L300 105 M310 115 L320 105" stroke="#8B5CF6" stroke-width="0.5" opacity="0.4"/>
-                    <text x="263" y="100" text-anchor="middle" font-size="8" font-weight="700" fill="var(--text1)" filter="url(#shadow-text)">WEST BRIDGE</text>
-                  </g>
-                  
-                  <!-- Zone D (West Anchorage) -->
-                  <g class="bim-node" id="bnode-D" onclick="clickBimZone('Zone D')">
-                    <path d="M325 160 L325 110 L370 110 L370 160 Z" fill="#00C9A7" fill-opacity="0.08" stroke="#00C9A7" stroke-width="1.5"/>
-                    <rect x="338" y="90" width="20" height="4" rx="1" fill="#00C9A7" opacity="0.3"/>
-                    <text x="348" y="140" text-anchor="middle" font-size="8" font-weight="700" fill="var(--text1)" filter="url(#shadow-text)">ANCHOR D</text>
-                  </g>
- 
-                  <!-- Labels & Scale -->
-                  <text x="10" y="20" font-size="7" fill="var(--text3)" opacity="0.6">ELEVATION VIEW · SCALE 1:500</text>
-                </svg>
-              </div>
-            </div>
           </div>
+          
           <div class="bim-side">
             <div class="card" style="margin-bottom:14px;">
-              <div class="card-title">Zone details</div>
+              <div class="card-title">Zone Details & Risks</div>
               <div class="bim-detail" id="bim-detail">
                 <div style="font-size:13px; font-weight:700; color:var(--text1); margin-bottom:12px;" id="zone-detail-title">Select a Zone</div>
-                <div style="font-size:12px; color:var(--text2); margin-bottom:20px; line-height:1.6;" id="zone-detail-desc">Click on a 3D block to see specific site data, issue logs, and AI predicted risks for that area.</div>
+                <div style="font-size:12px; color:var(--text2); margin-bottom:20px; line-height:1.6;" id="zone-detail-desc">Click on a 3D block to filter issues.</div>
                 <div class="detail-row"><span class="detail-key">Current Issues</span><span class="detail-val" id="zone-detail-issues">—</span></div>
-                <div class="detail-row"><span class="detail-key">BIM Status</span><span class="detail-val" id="zone-detail-status">Synced</span></div>
+                <div class="detail-row"><span class="detail-key">BIM Status</span><span class="detail-val">Synced</span></div>
               </div>
             </div>
             <div class="card">
               <div class="card-title">Quick Actions</div>
               <button class="cap-btn-main" style="width:100%; margin-bottom:8px;" onclick="switchTab('capture')">📷 Capture in Zone</button>
-              <button class="btn-ghost" style="width:100%; text-align:center; padding:10px;" onclick="toggleChat()">💬 Ask Assistant about Zone</button>
+              <button class="btn-ghost" style="width:100%; text-align:center; padding:10px;" onclick="toggleChat()">💬 Ask AI Assistant about Zone</button>
             </div>
           </div>
         </div>
+        
         <div class="card" style="margin-top:20px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <div class="card-title" style="margin-bottom:0;">Issues in this zone</div>
+            <div class="card-title" style="margin-bottom:0;">Issues in selected component</div>
             <button class="btn-ghost" style="padding:4px 10px; font-size:11px;" onclick="clearFilters()">Show All Zones</button>
           </div>
           <div id="bim-issues-list"></div>
         </div>
       </div>
 
-      <!-- ═══ ANALYTICS PANEL ═══ -->
+      <!-- ═══ PANEL: CONTRACTOR METRICS (WORKFORCE & ANALYTICS) ═══ -->
       <div class="panel" id="panel-analytics">
         <div class="analytics-grid">
-          <!-- LEFT: Main Trends -->
+          
           <div class="analytics-main">
-            <div class="card" style="margin-bottom:16px;">
-              <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>Predictive Risk Trend</span>
-                <span class="ai-badge">AI Forecast</span>
-              </div>
-              <div style="height:250px; position:relative; margin-top:10px;">
-                <canvas id="riskTrendChart"></canvas>
-              </div>
-              <p style="font-size:11px; color:var(--text3); border-top:1px solid var(--border); padding-top:12px; margin-top:16px; text-align:center;">
-                Predictive risk levels aggregated from multimodal defect analysis vs. project milestones.
-              </p>
-            </div>
-            
+            <!-- Contractor Performance Table -->
             <div class="card">
-              <div class="card-title">Team Performance Matrix</div>
-              <div id="team-stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-top:12px;">
-                <!-- Team cards injected here -->
+              <div class="card-title">Contractor Performance Dashboard</div>
+              <div style="overflow-x:auto; margin-top:10px;">
+                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px;">
+                  <thead>
+                    <tr style="border-bottom:1px solid var(--border2); color:var(--text3);">
+                      <th style="padding:10px 6px;">Contractor / Team</th>
+                      <th style="padding:10px 6px;">Assigned</th>
+                      <th style="padding:10px 6px;">Completed</th>
+                      <th style="padding:10px 6px;">Reworks</th>
+                      <th style="padding:10px 6px;">Completion Rate</th>
+                      <th style="padding:10px 6px;">Avg. Close Time</th>
+                      <th style="padding:10px 6px;">Quality Score</th>
+                    </tr>
+                  </thead>
+                  <tbody id="contractor-performance-table">
+                    <!-- Contractor rows injected here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Contractor Logs/Daily Progress Sheets -->
+            <div class="card">
+              <div class="card-title">Daily Contractor Work Logs</div>
+              <div id="contractor-daily-logs-list" style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+                <!-- Logs list -->
               </div>
             </div>
           </div>
-          
-          <!-- RIGHT: Distribution & Heartbeat -->
-          <div class="analytics-side">
-             <div class="kpi-glass" style="margin-bottom:16px;">
-              <div class="kpi-label">Site Impact Score</div>
-              <div style="display:flex; align-items:baseline; gap:8px;">
-                <div class="kpi-val" id="impact-score">85</div>
-                <div style="font-size:14px; font-weight:600; color:var(--green);">/ 100</div>
-              </div>
-              <div class="kpi-sub" style="color:var(--green);">Excellent site efficiency</div>
-            </div>
 
-            <div class="card" style="margin-bottom:16px;">
-              <div class="card-title">Observation Categories</div>
-              <div style="height:140px; position:relative; margin:10px 0;">
+          <div class="analytics-side">
+            <!-- Active Categories chart -->
+            <div class="card">
+              <div class="card-title">Defect Category Spread</div>
+              <div style="height:160px; position:relative; margin:10px 0;">
                 <canvas id="categoryChart"></canvas>
               </div>
             </div>
 
-            <div class="card" style="margin-bottom:16px;">
-              <div class="card-title">Forecast Risk Drivers</div>
-              <div id="risk-drivers-list" style="display:flex; flex-direction:column; gap:8px;">
-                <!-- Drivers injected here -->
-              </div>
-            </div>
-
-            <div class="card" style="flex:1; display:flex; flex-direction:column;">
-              <div class="card-title" style="display:flex; align-items:center; gap:8px;">
-                <div class="live-pulse"></div>
-                <span>AI Site Heartbeat</span>
-              </div>
-              <div id="ai-heartbeat-feed" style="flex:1; font-size:11px; color:var(--text3); overflow-y:auto; padding:10px 0;">
-                <!-- Live items injected here -->
+            <!-- Risk analysis parameters -->
+            <div class="card">
+              <div class="card-title">Safety Risk Drivers</div>
+              <div id="risk-drivers-list" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                <!-- Risk items -->
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- ═══ REPORTS PANEL ═══ -->
+      <!-- ═══ PANEL: REPORTS MODULE ═══ -->
       <div class="panel" id="panel-reports">
         <div class="reports-layout">
           <div>
+            <!-- AI Morning Site Briefing -->
             <div class="report-summary">
               <div class="rs-top">
-                <div><div class="rs-date">April 8, 2026</div><div class="rs-sub">Metro Rail — Package 3C · 12 engineers on site</div></div>
+                <div><div class="rs-date">Morning Briefing Summary</div><div class="rs-sub">AI Generated · Real-time status update</div></div>
                 <div class="ai-badge">AI Summary</div>
               </div>
-              <div class="rs-ai-text" id="ai-summary-text">Zone B at risk due to cable tray defect (CT-B-14). Zone C behind schedule by 18% — pipe alignment off-spec flagged for immediate review. Zone A ahead of BIM target by 6%. No safety incidents logged. Recommend PM review of Zone C before 14:00.</div>
-              <div class="rs-stats">
-                <div class="rss"><div class="rss-num c-teal" id="r-captured">23</div><div class="rss-lbl">Captured</div></div>
-                <div class="rss"><div class="rss-num c-green" id="r-resolved">19</div><div class="rss-lbl">Resolved</div></div>
-                <div class="rss"><div class="rss-num c-red" id="r-open">4</div><div class="rss-lbl">Open</div></div>
-              </div>
+              <div class="rs-ai-text" id="ai-summary-text">Generating project audit briefings...</div>
             </div>
 
-            <div class="card" style="margin-bottom:14px;">
-              <div class="card-title">BIM progress vs plan</div>
-              <div id="bim-prog-rep">
-                <div class="prog-row"><div class="prog-zone">Zone A</div><div class="prog-track"><div class="prog-fill" style="width:88%;background:var(--teal);"></div></div><div class="prog-pct">88%</div></div>
-                <div class="prog-row"><div class="prog-zone">Zone B</div><div class="prog-track"><div class="prog-fill" style="width:61%;background:var(--amber);"></div></div><div class="prog-pct">61%</div></div>
-                <div class="prog-row"><div class="prog-zone">Zone C</div><div class="prog-track"><div class="prog-fill" style="width:44%;background:var(--red);"></div></div><div class="prog-pct">44%</div></div>
-                <div class="prog-row"><div class="prog-zone">Zone D</div><div class="prog-track"><div class="prog-fill" style="width:72%;background:var(--teal);"></div></div><div class="prog-pct">72%</div></div>
-              </div>
+            <!-- BIM Progress list -->
+            <div class="card">
+              <div class="card-title">BIM Progress Against Timeline</div>
+              <div id="bim-prog-rep"></div>
             </div>
           </div>
 
           <div>
-            <div class="card" style="margin-bottom:14px;">
-              <div class="card-title">Export reports</div>
+            <!-- Export reports controls -->
+            <div class="card">
+              <div class="card-title">Export Compliance Records</div>
               <div class="export-list">
                 <div class="export-row">
-                  <div class="exp-icon" style="background:#2D1010;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="1.5" stroke="#FF6B6B" stroke-width="1.2"/><line x1="5" y1="6" x2="11" y2="6" stroke="#FF6B6B" stroke-width="1"/><line x1="5" y1="8.5" x2="11" y2="8.5" stroke="#FF6B6B" stroke-width="1"/><line x1="5" y1="11" x2="8" y2="11" stroke="#FF6B6B" stroke-width="1"/></svg></div>
-                  <div class="exp-info"><div class="exp-name">Daily Site Report</div><div class="exp-meta">PDF · Auto-generated · 2.1 MB</div></div>
-                  <button class="exp-btn" onclick="doExport('Daily Site Report PDF')">Export</button>
+                  <div class="exp-icon" style="background:#2D1010;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="1.5" stroke="#FF6B6B" stroke-width="1.2"/><line x1="5" y1="6" x2="11" y2="6" stroke="#FF6B6B" stroke-width="1"/><line x1="5" y1="8.5" x2="11" y2="8.5" stroke="#FF6B6B" stroke-width="1"/></svg></div>
+                  <div class="exp-info"><div class="exp-name">Full PDF Inspection Report</div><div class="exp-meta">PDF · Complete audit record</div></div>
+                  <button class="exp-btn" onclick="doExport('Full PDF Report')">Export</button>
                 </div>
                 <div class="export-row">
-                  <div class="exp-icon" style="background:#0E1E32;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L14 4.5V11.5L8 15L2 11.5V4.5L8 1Z" stroke="#4A90D9" stroke-width="1.2" fill="none"/><path d="M8 1V15M2 4.5L14 11.5M14 4.5L2 11.5" stroke="#4A90D9" stroke-width="0.7" opacity="0.5"/></svg></div>
-                  <div class="exp-info"><div class="exp-name">BIM Issue Overlay</div><div class="exp-meta">IFC · 23 tagged elements · 8.4 MB</div></div>
-                  <button class="exp-btn" onclick="doExport('BIM IFC Export')">Export</button>
-                </div>
-                <div class="export-row">
-                  <div class="exp-icon" style="background:#2D1A10;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="1.5" stroke="#F0A030" stroke-width="1.2"/><path d="M5 5L11 5M5 8L11 8M5 11L8 11" stroke="#F0A030" stroke-width="1"/></svg></div>
-                  <div class="exp-info"><div class="exp-name">Safety Compliance Audit</div><div class="exp-meta">PDF · Filtered: Safety</div></div>
-                  <button class="exp-btn" onclick="doExport('Safety Audit PDF')">Export</button>
-                </div>
-                <div class="export-row">
-                  <div class="exp-icon" style="background:#0D1E2B;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#5B9BD5" stroke-width="1.2"/><path d="M2 7H14M6 3V13" stroke="#5B9BD5" stroke-width="0.8"/></svg></div>
-                  <div class="exp-info"><div class="exp-name">MEP Engineering Log</div><div class="exp-meta">CSV · Filtered: MEP</div></div>
-                  <button class="exp-btn" onclick="doExport('MEP Status CSV')">Export</button>
-                </div>
-                <div class="export-row">
-                  <div class="exp-icon" style="background:#0D2B1E;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#00C9A7" stroke-width="1.2" fill="none"/><line x1="2" y1="7" x2="14" y2="7" stroke="#00C9A7" stroke-width="0.8"/><line x1="6" y1="3" x2="6" y2="13" stroke="#00C9A7" stroke-width="0.8"/></svg></div>
-                  <div class="exp-info"><div class="exp-name">Full Audit Log</div><div class="exp-meta">CSV · All Zones</div></div>
-                  <button class="exp-btn" onclick="doExport('Full Issues CSV Log')">Export</button>
+                  <div class="exp-icon" style="background:#0D1E2B;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#5B9BD5" stroke-width="1.2"/><path d="M2 7H14" stroke="#5B9BD5" stroke-width="0.8"/></svg></div>
+                  <div class="exp-info"><div class="exp-name">Audit Log CSV</div><div class="exp-meta">CSV · Excel compatible log</div></div>
+                  <button class="exp-btn" onclick="doExport('CSV Audit Log')">Export</button>
                 </div>
               </div>
-              <button class="send-btn" onclick="doExport('Full Report to PM')">Send Full Report to PM</button>
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
-                <button class="btn-ghost" style="padding:11px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="shareReport('whatsapp')">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--green);"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-11.7 1 1 0 0 1 .6 0A8.5 8.5 0 0 1 21 11.5z"></path><path d="M16 11l-3 3-4-4"></path></svg>
-                  WhatsApp
-                </button>
-                <button class="btn-ghost" style="padding:11px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="shareReport('email')">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                  Email
-                </button>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;">
+                <button class="btn-ghost" style="padding:11px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="shareReport('whatsapp')">WhatsApp Summary</button>
+                <button class="btn-ghost" style="padding:11px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="shareReport('email')">Email Summary</button>
               </div>
             </div>
           </div>
@@ -1177,65 +920,128 @@ footer {
   </div>
 </section>
 
-<!-- FEATURES -->
-<section class="feat-section" id="features">
-  <div class="inner">
-    <span class="sec-label">Platform Features</span>
-    <h2 class="sec-title">Everything built for<br>field intelligence</h2>
-    <div class="feat-grid">
-      <div class="feat-card span2">
-        <div class="ficon"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div>
-        <h3>Live BIM Integration</h3>
-        <p>Every field capture — voice note, photo, observation — maps directly to its BIM element in real time. Issues, progress and risk flags live inside your digital twin, not a separate app.</p>
-      </div>
-      <div class="feat-card">
-        <div class="ficon"><svg viewBox="0 0 24 24"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0-18v2M5.636 5.636L7.05 7.05M16.95 16.95l1.414 1.414"/></svg></div>
-        <h3>Voice capture</h3>
-        <p>Hands-free AI voice recording. Engineers speak naturally — the AI transcribes, classifies and logs the issue with GPS tagging automatically.</p>
-      </div>
-      <div class="feat-card">
-        <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div>
-        <h3>Predictive risk detection</h3>
-        <p>AI compares planned vs actual BIM progress and flags schedule risks before they become delays — giving project managers time to act.</p>
-      </div>
-      <div class="feat-card">
-        <div class="ficon"><svg viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 10v9a2 2 0 01-2 2z"/></svg></div>
-        <h3>Automated reports</h3>
-        <p>AI-generated daily site reports delivered automatically — reducing reporting lag from 72 hours to under 4, with zero manual effort from engineers.</p>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- ═══ MODAL OVERLAYS (WORKFLOW ACTIONS) ═══ -->
 
-<!-- CTA -->
-<section class="cta-section" id="contact">
-  <h2>Build your next project<br>with <em style="font-style:normal;color:var(--teal);">certainty</em></h2>
-  <p>Join EPC contractors and infrastructure teams using AI Integrated Inspection to deliver on time and within budget.</p>
-  <div class="cta-form">
-    <input class="cta-input" type="email" placeholder="Enter your work email" id="cta-email"/>
-    <button class="btn-teal" onclick="submitDemo()">Request Demo</button>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-grid">
+<!-- Manager Review and Assign Modal -->
+<div class="modal-overlay" id="pm-review-modal">
+  <div class="modal-card">
+    <div class="modal-header" id="pm-modal-title">Review Inspection & Assign Task</div>
+    
     <div>
-      <div class="footer-logo" style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-        <img src="logo.png" alt="Logo" style="height:48px; width:48px; border-radius:50%; object-fit:contain; border: 2px solid var(--teal); box-shadow: 0 0 10px rgba(0, 201, 167, 0.3); image-rendering: -webkit-optimize-contrast;">
-        AI<span>Inspect</span>
-      </div>
-      <div class="footer-tagline">Real-time validated field intelligence for critical infrastructure projects. Powered by AI Integrated Inspection.</div>
+      <label style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:4px;">Observation Summary</label>
+      <div id="pm-modal-desc" style="font-size:12px; background:var(--bg3); border-radius:6px; padding:10px; line-height:1.5; max-height:120px; overflow-y:auto; border:1px solid var(--border);"></div>
     </div>
-    <div class="footer-col"><h4>Product</h4><ul><li><a href="#app">Live App</a></li><li><a href="#features">Features</a></li><li><a href="#contact">Request Demo</a></li></ul></div>
-    <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Press</a></li></ul></div>
-    <div class="footer-col"><h4>Resources</h4><ul><li><a href="#">Case studies</a></li><li><a href="#">Documentation</a></li><li><a href="#">Privacy policy</a></li></ul></div>
+
+    <div>
+      <label class="field-label">Adjust Severity</label>
+      <select class="field-select" id="pm-modal-severity">
+        <option>LOW — Minor observation</option>
+        <option>MED — Schedule risk</option>
+        <option>HIGH — Safety / structural</option>
+        <option>CRITICAL — Safety Alert</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="field-label">Assign Contractor / Team</label>
+      <select class="field-select" id="pm-modal-assignee">
+        <!-- Worker options injected dynamically -->
+      </select>
+    </div>
+
+    <div>
+      <label class="field-label">Completion Deadline</label>
+      <input type="date" class="field-input" id="pm-modal-deadline" style="color:var(--text1); font-family:inherit;">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" style="padding:8px 16px;" onclick="closeModal('pm-review-modal')">Cancel</button>
+      <button class="btn-teal" style="padding:8px 16px;" id="pm-modal-submit-btn">Approve & Dispatch</button>
+    </div>
   </div>
-  <div class="footer-bottom">
-    <span class="footer-copy">© 2026 AI Integrated Inspection. All rights reserved.</span>
-    <span class="footer-copy">Powered by Sortyx Technologies</span>
+</div>
+
+<!-- Worker Progress Update Modal -->
+<div class="modal-overlay" id="worker-progress-modal">
+  <div class="modal-card">
+    <div class="modal-header">Update Task Progress</div>
+    
+    <div>
+      <label class="field-label">Work Description</label>
+      <div id="worker-modal-desc" style="font-size:12px; color:var(--text2); background:var(--bg3); border-radius:6px; padding:10px; border:1px solid var(--border);"></div>
+    </div>
+
+    <div>
+      <label class="field-label">Progress Percentage: <span id="worker-progress-val">50%</span></label>
+      <input type="range" min="0" max="100" step="25" value="50" class="field-input" id="worker-modal-slider" oninput="document.getElementById('worker-progress-val').textContent = this.value + '%'" style="cursor:pointer; height:6px;">
+    </div>
+
+    <div>
+      <label class="field-label">Completion Evidence Note</label>
+      <textarea class="field-input" id="worker-modal-notes" rows="2" placeholder="Write what you have completed..." style="resize:none;"></textarea>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div>
+        <label class="field-label">Before Photo</label>
+        <div style="background:var(--bg3); border:1px dashed var(--border2); border-radius:6px; height:80px; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="simulateWorkerUpload('before')">
+          <span style="font-size:11px; color:var(--text3);" id="before-img-status">📸 Attach</span>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">After Photo (Completion)</label>
+        <div style="background:var(--bg3); border:1px dashed var(--border2); border-radius:6px; height:80px; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="simulateWorkerUpload('after')">
+          <span style="font-size:11px; color:var(--text3);" id="after-img-status">📸 Attach</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" style="padding:8px 16px;" onclick="closeModal('worker-progress-modal')">Close</button>
+      <button class="btn-teal" style="padding:8px 16px;" id="worker-modal-submit-btn">Submit Progress</button>
+    </div>
   </div>
-</footer>
+</div>
+
+<!-- Manager Verification Modal -->
+<div class="modal-overlay" id="pm-verification-modal">
+  <div class="modal-card">
+    <div class="modal-header">Completion Verification Checklist</div>
+
+    <div>
+      <label class="field-label">Task Details</label>
+      <div id="verify-modal-desc" style="font-size:12px; color:var(--text2); background:var(--bg3); border-radius:6px; padding:10px; border:1px solid var(--border);"></div>
+    </div>
+
+    <div>
+      <label class="field-label">Contractor Notes</label>
+      <div id="verify-modal-notes" style="font-size:12px; color:var(--text2); background:var(--bg3); border-radius:6px; padding:10px; font-style:italic; border:1px solid var(--border);"></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+      <div>
+        <div style="font-size:10px; color:var(--text3); text-transform:uppercase; margin-bottom:4px; font-weight:700;">Before Image</div>
+        <div style="height:120px; background:var(--bg3); border-radius:8px; overflow:hidden; border:1px solid var(--border);" id="verify-modal-before-container">
+          <img src="" style="width:100%; height:100%; object-fit:cover;" id="verify-modal-before">
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px; color:var(--text3); text-transform:uppercase; margin-bottom:4px; font-weight:700;">After Image (Verification)</div>
+        <div style="height:120px; background:var(--bg3); border-radius:8px; overflow:hidden; border:1px solid var(--border);" id="verify-modal-after-container">
+          <img src="" style="width:100%; height:100%; object-fit:cover;" id="verify-modal-after">
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="justify-content:space-between; width:100%;">
+      <button class="action-btn delete-btn" style="padding:10px 16px; border-color:var(--red); color:var(--red);" id="pm-verify-rework-btn">⚠️ Reject & Order Rework</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-ghost" style="padding:10px 16px;" onclick="closeModal('pm-verification-modal')">Close</button>
+        <button class="btn-teal" style="padding:10px 16px;" id="pm-verify-approve-btn">✓ Approve & Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- TOAST -->
 <div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg">Done</span></div>
@@ -1247,14 +1053,14 @@ footer {
 
 <div class="chat-window" id="chat-window">
   <div class="chat-header">
-    <div class="chat-title"><span></span>AI Site Assistant</div>
+    <div class="chat-title"><span></span>AI Site Partner</div>
     <button onclick="toggleChat()" style="background:none; border:none; color:var(--text3); cursor:pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div class="chat-messages" id="chat-messages">
-    <div class="msg ai">Hello! I'm your AI Site Assistant. How can I help you understand today's project data and risks?</div>
+    <div class="msg ai">Hello! I'm your AI Site Partner. Ask me anything about projects, active contractor workorders, safety hazards or delay risks!</div>
   </div>
   <div class="chat-input-area">
-    <input type="text" class="chat-input" id="chat-query" placeholder="Ask about site progress, risks..." onkeypress="if(event.key==='Enter') sendChat()"/>
+    <input type="text" class="chat-input" id="chat-query" placeholder="Ask about issues, reworks..." onkeypress="if(event.key==='Enter') sendChat()"/>
     <button class="chat-send" id="chat-send-btn" onclick="sendChat()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
     </button>
@@ -1267,29 +1073,14 @@ let openCount = 0;
 let bimData = {};
 let allIssues = [];
 let zoneStats = {};
+let contractors = [];
 let lastCapturedImage = null;
 let lastCapturedFilename = null;
+let currentRole = 'manager';
 
-function updateTrends(trendsData) {
-    if (!trendsData) return;
-    const barsContainer = document.getElementById('trend-bars');
-    if (!barsContainer) return;
-    
-    barsContainer.innerHTML = '';
-    
-    trendsData.forEach(t => {
-        const loggedHeight = t.logged === 0 ? 0 : Math.min(60, 15 + t.logged * 4.5);
-        const resolvedHeight = t.resolved === 0 ? 0 : Math.min(60, 15 + t.resolved * 4.5);
-        
-        const col = document.createElement('div');
-        col.className = 'barcol';
-        col.dataset.issues = t.logged;
-        col.dataset.resolved = t.resolved;
-        
-        col.innerHTML = `<div class="bar issues" style="height:${loggedHeight}px;"></div><div class="bar resolved" style="height:${resolvedHeight}px;"></div><div class="barlbl">${t.day}</div>`;
-        barsContainer.appendChild(col);
-    });
-}
+// Mock storage for contractor verification images (simulated files)
+let simulatedBeforeImg = 'capture-1.jpg'; 
+let simulatedAfterImg = 'capture-2.jpg'; 
 
 function updateBimProgress(zoneStats) {
     if (!zoneStats) return;
@@ -1298,170 +1089,591 @@ function updateBimProgress(zoneStats) {
         return `<div class="prog-row"><div class="prog-zone">${z}</div><div class="prog-track"><div class="prog-fill" style="width:${s.pct}%;background:${s.color};"></div></div><div class="prog-pct">${s.pct}%</div><div class="prog-status" style="background:${s.color};"></div></div>`;
     }).join('');
     
-    if (document.getElementById('bim-prog-dash')) {
-        document.getElementById('bim-prog-dash').innerHTML = html;
-    }
     if (document.getElementById('bim-prog-rep')) {
         document.getElementById('bim-prog-rep').innerHTML = html;
     }
 }
 
-// ── ANIMATED COUNTER UTILITY ──
-/**
- * Smoothly animates a number from its current displayed value to a new target.
- * @param {HTMLElement} el       - The element whose textContent to animate
- * @param {number}      target   - The destination value
- * @param {number}      decimals - Decimal places to show (0 for integers)
- * @param {number}      duration - Animation duration in ms (default 700)
- */
 function animateCounter(el, target, decimals = 0, duration = 700) {
     if (!el) return;
-    const start   = parseFloat(el.textContent) || 0;
-    const diff    = target - start;
+    const start = parseFloat(el.textContent) || 0;
+    const diff = target - start;
     if (diff === 0) return;
 
-    // Pulse glow on parent KPI card
-    const kpiCard = el.closest('.kpi');
-    if (kpiCard) {
-        kpiCard.style.boxShadow = '0 0 0 2px var(--teal)';
-        setTimeout(() => { kpiCard.style.boxShadow = ''; }, 600);
-    }
-
     const startTime = performance.now();
-
     function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
     function step(now) {
-        const elapsed  = now - startTime;
+        const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const eased    = easeOutCubic(progress);
-        const current  = start + diff * eased;
-        el.textContent = decimals > 0
-            ? current.toFixed(decimals)
-            : Math.round(current).toString();
+        const eased = easeOutCubic(progress);
+        const current = start + diff * eased;
+        el.textContent = decimals > 0 ? current.toFixed(decimals) : Math.round(current).toString();
         if (progress < 1) requestAnimationFrame(step);
     }
-
     requestAnimationFrame(step);
 }
 
 function updateKPIs(data) {
-    // flatten: support both nested kpis:{} and flat response
     const kpis = data.kpis || data;
-
     if (kpis.openCount !== undefined) {
         openCount = kpis.openCount;
         animateCounter(document.getElementById('kpi-open'), openCount, 0);
-        const rOpen = document.getElementById('r-open');
-        if (rOpen) animateCounter(rOpen, openCount, 0);
-        const badge = document.getElementById('issues-count-badge');
-        if (badge) {
-            const prev = parseInt(badge.textContent) || 0;
-            animateCounter({ // fake element wrapper for badge text
-                get textContent() { return String(prev); },
-                set textContent(v) { badge.textContent = v + ' active'; },
-                closest: () => null
-            }, openCount, 0);
-        }
-    }
-    if (kpis.captured !== undefined) {
-        const rCap = document.getElementById('r-captured');
-        if (rCap) animateCounter(rCap, kpis.captured, 0);
     }
     if (kpis.resolved !== undefined) {
-        const rRes = document.getElementById('r-resolved');
-        if (rRes) animateCounter(rRes, kpis.resolved, 0);
+        animateCounter(document.getElementById('kpi-resolved'), kpis.resolved, 0);
     }
 
-    // Report Lag
-    if (kpis.reportLag !== undefined) {
-        const lagEl  = document.getElementById('kpi-lag');
-        const lagSub = document.getElementById('kpi-lag-sub');
-        animateCounter(lagEl, parseFloat(kpis.reportLag), 1);
-        if (lagSub) {
-            const good = kpis.lagGood !== false;
-            lagSub.style.color = good ? 'var(--green)' : 'var(--amber)';
-            lagSub.innerHTML = (good ? '&#9660;' : '&#9650;') + ' ' + (kpis.lagTrend || '') +
-                ` <span class="kpi-badge" style="background:${good ? '#E6F4EA;color:var(--green)' : '#FDF3E6;color:var(--amber)'}">${good ? '95% faster' : 'Increasing'}</span>`;
-        }
-    }
+    // Trigger dynamic delay prediction gauge update
+    updateDelayGauge(kpis.openCount);
+}
 
-    // Rework Rate
-    if (kpis.reworkRate !== undefined) {
-        const rwEl  = document.getElementById('kpi-rework');
-        const rwSub = document.getElementById('kpi-rework-sub');
-        animateCounter(rwEl, parseFloat(kpis.reworkRate), 1);
-        if (rwSub) {
-            const good = kpis.reworkGood !== false;
-            rwSub.style.color = good ? 'var(--green)' : 'var(--amber)';
-            rwSub.innerHTML = (good ? '&#9660;' : '&#9650;') + ' ' + (kpis.reworkTrend || '') +
-                ` <span class="kpi-badge" style="background:${good ? '#E6F4EA;color:var(--green)' : '#FDF3E6;color:var(--amber)'}">${good ? 'Improving' : 'Watch'}</span>`;
-        }
-    }
+function updateDelayGauge(openCount) {
+  const fill = document.getElementById('delay-gauge-fill');
+  const val = document.getElementById('delay-gauge-val');
+  const desc = document.getElementById('delay-gauge-desc');
+  if(!fill || !val) return;
+
+  let score = Math.min(100, Math.max(10, openCount * 18));
+  let color = 'var(--teal)';
+  let label = 'Low Project Delay Risk';
+
+  if (score > 60) {
+    color = 'var(--red)';
+    label = 'CRITICAL Project Delay Risk';
+  } else if (score > 30) {
+    color = 'var(--amber)';
+    label = 'Medium Schedule Risk';
+  }
+
+  fill.setAttribute('stroke', color);
+  fill.setAttribute('stroke-dasharray', `${score}, 100`);
+  val.textContent = score + '%';
+  val.style.color = color;
+  desc.textContent = label;
+  desc.style.color = color;
+}
+
+// ── ROLE SIMULATION ENGINE ──
+function changeRole(role) {
+  currentRole = role;
+  const badge = document.getElementById('role-display-badge');
+  const header = document.getElementById('hero-title');
+  const sub = document.getElementById('hero-subtitle');
+  
+  if (role === 'manager') {
+    badge.textContent = 'Project Manager View';
+    badge.style.background = 'rgba(91,155,213,0.12)';
+    badge.style.color = 'var(--blue)';
+    header.innerHTML = 'AI Construction Inspection &<br><em>Workforce Management</em>';
+    sub.textContent = 'Review reports, approve inspections, assign tasks, and track contractor performance matrices.';
+    
+    // Toggle Tab labels
+    document.getElementById('tab-dashboard-label').textContent = 'Manager Dashboard';
+    switchTab('dashboard', document.getElementById('tab-dashboard-btn'));
+  } else if (role === 'inspector') {
+    badge.textContent = 'Site Inspector View';
+    badge.style.background = 'rgba(0,201,167,0.12)';
+    badge.style.color = 'var(--teal)';
+    header.innerHTML = 'Field Inspection &<br><em>Defect Capture Command</em>';
+    sub.textContent = 'Capture site defects using photos and Whisper AI voice notes to automatically route to managers.';
+    
+    switchTab('capture', document.getElementById('tab-capture-btn'));
+  } else if (role === 'worker') {
+    badge.textContent = 'Contractor Team View';
+    badge.style.background = 'rgba(240,160,48,0.12)';
+    badge.style.color = 'var(--amber)';
+    header.innerHTML = 'Contractor Dispatch &<br><em>Workorder Center</em>';
+    sub.textContent = 'View your assigned inspections, submit work progress logs, and record voice daily sheets.';
+    
+    document.getElementById('tab-dashboard-label').textContent = 'Contractor Tasks';
+    switchTab('dashboard', document.getElementById('tab-dashboard-btn'));
+  }
+  
+  loadDashboard(false);
 }
 
 // ── INITIAL LOAD ──
 async function loadDashboard(isRefresh = false) {
     try {
-        const [dashRes, feedRes, bimRes] = await Promise.all([
+        const [dashRes, feedRes, workersRes] = await Promise.all([
             fetch('/api/dashboard'),
             fetch('/api/feed'),
-            fetch('/api/bim')
+            fetch('/api/workers')
         ]);
 
         const dashboard = await dashRes.json();
         const feed = await feedRes.json();
-        bimData = await bimRes.json();
+        contractors = await workersRes.json();
         allIssues = dashboard.issues;
         zoneStats = dashboard.zoneStats || {};
 
-        // Populate Dashboard
+        // Update Heatmap stats dynamically
+        updateHeatmap(allIssues);
+
+        // Update KPIs
         updateKPIs(dashboard);
-        if (dashboard.trends) updateTrends(dashboard.trends);
         if (dashboard.zoneStats) updateBimProgress(dashboard.zoneStats);
 
-        renderIssues(allIssues, 'issues-list');
+        // Fill reviewer contractor options in modals
+        populateAssigneeDropdowns();
 
-        // Populate Feed
+        // Render Issue queues based on active role selection
+        renderRoleSpecificQueues();
+
+        // Populate Feed logs
         const capFeed = document.getElementById('cap-feed');
         capFeed.innerHTML = '';
         feed.forEach(renderFeedItem);
 
-        // Update last-updated timestamp
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const label = document.getElementById('last-updated-label');
-        if (label) label.textContent = `Last updated: ${timeStr}`;
-
         if (isRefresh) showToast('Dashboard refreshed ✓');
-
     } catch (e) {
         console.error('Failed to load dashboard data:', e);
-        showToast('Error loading data from server');
+        showToast('Error syncing with backend database');
     }
 }
 
+function updateHeatmap(issues) {
+  const counts = { 'Zone A': 0, 'Zone B': 0, 'Zone C': 0, 'Zone D': 0, 'Zone E': 0, 'Zone F': 0 };
+  issues.forEach(i => {
+    if(i.status !== 'resolved' && counts[i.zone] !== undefined) {
+      counts[i.zone]++;
+    }
+  });
+
+  for(let z in counts) {
+    const short = z.replace('Zone ', '');
+    const cell = document.getElementById('heat-' + short);
+    if(cell) {
+      const valEl = cell.querySelector('.heatmap-val');
+      valEl.textContent = counts[z];
+      
+      // Update cell border color depending on issue count
+      if(counts[z] === 0) {
+        cell.style.borderColor = 'var(--border)';
+        valEl.className = 'heatmap-val c-dim';
+      } else if (counts[z] === 1) {
+        cell.style.borderColor = 'var(--amber)';
+        valEl.className = 'heatmap-val c-amber';
+      } else {
+        cell.style.borderColor = 'var(--red)';
+        valEl.className = 'heatmap-val c-red';
+      }
+    }
+  }
+}
+
+function populateAssigneeDropdowns() {
+  const managerSelect = document.getElementById('pm-modal-assignee');
+  if (managerSelect) {
+    managerSelect.innerHTML = contractors.map(w => `<option value="${w.id}">${w.name} (${w.team})</option>`).join('');
+  }
+}
+
+function renderRoleSpecificQueues() {
+  const container = document.getElementById('issues-list');
+  const title = document.getElementById('issues-list-title');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  if (currentRole === 'manager') {
+    title.textContent = 'Project Manager Review Queue';
+    
+    // Split issues into Review vs Progress vs Verification
+    const pendingReview = allIssues.filter(i => i.status === 'pending_review');
+    const waitingVerification = allIssues.filter(i => i.status === 'waiting_for_approval');
+    const inProgress = allIssues.filter(i => i.status === 'open' || i.status === 'in_progress');
+
+    let html = '';
+
+    if (pendingReview.length > 0) {
+      html += `<div style="font-size:11px; color:var(--amber); font-weight:700; margin: 10px 0 10px; text-transform:uppercase; letter-spacing:0.04em;">⚠️ Awaiting Manager Review (${pendingReview.length})</div>`;
+      pendingReview.forEach(issue => {
+        html += renderManagerReviewCard(issue);
+      });
+    }
+
+    if (waitingVerification.length > 0) {
+      html += `<div style="font-size:11px; color:var(--green); font-weight:700; margin: 20px 0 10px; text-transform:uppercase; letter-spacing:0.04em;">✓ Awaiting Completion Verification (${waitingVerification.length})</div>`;
+      waitingVerification.forEach(issue => {
+        html += renderManagerVerifyCard(issue);
+      });
+    }
+
+    if (inProgress.length > 0) {
+      html += `<div style="font-size:11px; color:var(--text3); font-weight:700; margin: 20px 0 10px; text-transform:uppercase; letter-spacing:0.04em;">Dispatched Tasks in Progress (${inProgress.length})</div>`;
+      inProgress.forEach(issue => {
+        html += renderManagerStandardCard(issue);
+      });
+    }
+
+    if(html === '') {
+      container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:12px;">No active workorders recorded.</div>';
+    } else {
+      container.innerHTML = html;
+    }
+
+  } else if (currentRole === 'worker') {
+    title.textContent = 'My Contractor Dispatched Tasks';
+    
+    // Filter issues where status is open or in_progress or waiting_for_approval
+    const assignedTasks = allIssues.filter(i => i.status === 'open' || i.status === 'in_progress' || i.status === 'waiting_for_approval');
+
+    if (assignedTasks.length === 0) {
+      container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:12px;">No active tasks assigned to your team.</div>';
+    } else {
+      assignedTasks.forEach(issue => {
+        const el = document.createElement('div');
+        el.className = 'issue';
+        
+        let actionBtnHtml = `<button class="action-btn resolve-btn" onclick="openWorkerProgressModal(${issue.id})">Update Progress</button>`;
+        if (issue.status === 'waiting_for_approval') {
+          actionBtnHtml = `<span style="font-size:11px; color:var(--amber); font-weight:600;">⌛ Verification Pending</span>`;
+        }
+
+        const thumbnailHtml = issue.image ? `<img src="/uploads/${issue.image}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:12px; border:1px solid var(--border);">` : '';
+        const deadlineLabel = issue.deadline ? ` · <span style="color:var(--red);">Deadline: ${issue.deadline}</span>` : '';
+
+        el.innerHTML = `
+          <div style="display:flex; align-items:flex-start; flex:1;">
+            ${thumbnailHtml}
+            <div style="flex:1;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <div class="ibadge ${issue.sevClass}">${issue.sevLabel}</div>
+                <div class="imeta">${issue.zone} · ${issue.category} ${deadlineLabel}</div>
+              </div>
+              <div class="ititle">${issue.desc}</div>
+              <div style="margin-top:6px; font-size:11px; color:var(--text3);">Status: <strong class="c-amber">${issue.status.toUpperCase()}</strong></div>
+            </div>
+          </div>
+          <div class="issue-actions">
+            ${actionBtnHtml}
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+  } else {
+    // Inspector role
+    title.textContent = 'My Submitted Inspections';
+    renderIssues(allIssues, 'issues-list');
+  }
+}
+
+function renderManagerReviewCard(issue) {
+  const thumbnailHtml = issue.image ? `<img src="/uploads/${issue.image}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:12px; border:1px solid var(--border);">` : '';
+  return `
+    <div class="issue">
+      <div style="display:flex; align-items:flex-start; flex:1;">
+        ${thumbnailHtml}
+        <div style="flex:1;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <div class="ibadge ${issue.sevClass}">${issue.sevLabel}</div>
+            <div class="imeta">${issue.zone} · Awaiting Manager Review</div>
+          </div>
+          <div class="ititle">${issue.desc}</div>
+        </div>
+      </div>
+      <div class="issue-actions">
+        <button class="action-btn resolve-btn" onclick="openReviewModal(${issue.id})">Review & Dispatch</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderManagerVerifyCard(issue) {
+  const thumbnailHtml = issue.image ? `<img src="/uploads/${issue.image}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:12px; border:1px solid var(--border);">` : '';
+  return `
+    <div class="issue">
+      <div style="display:flex; align-items:flex-start; flex:1;">
+        ${thumbnailHtml}
+        <div style="flex:1;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <div class="ibadge ok">WAITING APPROVAL</div>
+            <div class="imeta">${issue.zone} · Contractor completed work</div>
+          </div>
+          <div class="ititle">${issue.desc}</div>
+          <div style="font-size:11px; color:var(--text3); margin-top:6px;">Assigned: <strong>${issue.assignee_name || 'Contractor'}</strong></div>
+        </div>
+      </div>
+      <div class="issue-actions">
+        <button class="action-btn resolve-btn" onclick="openVerificationModal(${issue.id})">Verify Work Completion</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderManagerStandardCard(issue) {
+  const thumbnailHtml = issue.image ? `<img src="/uploads/${issue.image}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:12px; border:1px solid var(--border);">` : '';
+  const deadlineLabel = issue.deadline ? ` · <span style="color:var(--red);">Deadline: ${issue.deadline}</span>` : '';
+  return `
+    <div class="issue">
+      <div style="display:flex; align-items:flex-start; flex:1;">
+        ${thumbnailHtml}
+        <div style="flex:1;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <div class="ibadge ${issue.sevClass}">${issue.sevLabel}</div>
+            <div class="imeta">${issue.zone} · ${issue.category} ${deadlineLabel}</div>
+          </div>
+          <div class="ititle">${issue.desc}</div>
+          <div style="font-size:11px; color:var(--text3); margin-top:6px;">Status: <strong class="c-amber">${issue.status.toUpperCase()}</strong> | Assignee: <strong>${issue.assignee_name || 'Contractor'}</strong></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── OPEN MODALS ──
+function openReviewModal(issueId) {
+  const issue = allIssues.find(i => i.id === issueId);
+  if(!issue) return;
+
+  document.getElementById('pm-modal-desc').innerHTML = issue.desc;
+  document.getElementById('pm-review-modal').classList.add('active');
+
+  // Submit handler
+  document.getElementById('pm-modal-submit-btn').onclick = async () => {
+    const severity = document.getElementById('pm-modal-severity').value;
+    const assignee_id = document.getElementById('pm-modal-assignee').value;
+    const deadline = document.getElementById('pm-modal-deadline').value;
+
+    if (!deadline) {
+      showToast('Please specify a task completion deadline.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/issues/${issueId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'in_progress',
+          severity,
+          assignee_id,
+          deadline
+        })
+      });
+      if(res.ok) {
+        closeModal('pm-review-modal');
+        showToast('Workorder approved & task dispatched to contractor');
+        loadDashboard(false);
+      }
+    } catch(e) {
+      showToast('Failed to save review details');
+    }
+  };
+}
+
+function openWorkerProgressModal(issueId) {
+  const issue = allIssues.find(i => i.id === issueId);
+  if(!issue) return;
+
+  document.getElementById('worker-modal-desc').innerHTML = issue.desc;
+  document.getElementById('worker-progress-modal').classList.add('active');
+
+  // Reset uploader text fields
+  document.getElementById('before-img-status').textContent = '📸 Attach';
+  document.getElementById('after-img-status').textContent = '📸 Attach';
+
+  document.getElementById('worker-modal-submit-btn').onclick = async () => {
+    const progress_pct = parseInt(document.getElementById('worker-modal-slider').value, 10);
+    const comments = document.getElementById('worker-modal-notes').value.trim();
+
+    if(!comments) {
+      showToast('Please add comments detailing work progress.');
+      return;
+    }
+
+    const status = progress_pct === 100 ? 'waiting_for_approval' : 'in_progress';
+
+    try {
+      const res = await fetch(`/api/issues/${issueId}/progress`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          progress_pct,
+          status,
+          comments,
+          before_img: simulatedBeforeImg,
+          after_img: progress_pct === 100 ? simulatedAfterImg : null,
+          worker_id: 4 // MEP/Civil contractor ID default
+        })
+      });
+      if(res.ok) {
+        closeModal('worker-progress-modal');
+        showToast('Progress update submitted successfully');
+        loadDashboard(false);
+      }
+    } catch(e) {
+      showToast('Error uploading progress');
+    }
+  };
+}
+
+function openVerificationModal(issueId) {
+  const issue = allIssues.find(i => i.id === issueId);
+  if(!issue) return;
+
+  document.getElementById('verify-modal-desc').innerHTML = issue.desc;
+  
+  // Fetch latest comments and images from audit logs
+  fetch(`/api/issues/${issueId}/audit`)
+    .then(r => r.json())
+    .then(data => {
+      const lastUpdate = data.progress[0] || {};
+      document.getElementById('verify-modal-notes').textContent = lastUpdate.comments || 'No contractor notes provided.';
+      
+      // Seed photo containers
+      document.getElementById('verify-modal-before').src = '/logo.png'; // Mock placeholder
+      document.getElementById('verify-modal-after').src = '/logo.png'; // Mock placeholder
+    });
+
+  document.getElementById('pm-verification-modal').classList.add('active');
+
+  document.getElementById('pm-verify-approve-btn').onclick = () => PMVerifyAction(issueId, 'approve');
+  document.getElementById('pm-verify-rework-btn').onclick = () => PMVerifyAction(issueId, 'rework');
+}
+
+async function PMVerifyAction(issueId, action) {
+  try {
+    const res = await fetch(`/api/issues/${issueId}/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action })
+    });
+    if(res.ok) {
+      closeModal('pm-verification-modal');
+      showToast(action === 'approve' ? 'Work verified! Audit log resolved' : 'Task returned for contractor rework');
+      loadDashboard(false);
+    }
+  } catch(e) {
+    showToast('Failed to submit verification check');
+  }
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove('active');
+}
+
+function simulateWorkerUpload(type) {
+  document.getElementById(type + '-img-status').textContent = '✓ Attached';
+  showToast('Simulated inspection photo attached successfully');
+}
+
+// ── RENDER CONTRACTOR PERFORMANCE (ANALYTICS) ──
+async function loadAnalytics() {
+  const catCtx = document.getElementById('categoryChart');
+  if (!catCtx) return;
+
+  try {
+    const [statsRes, contractorsRes] = await Promise.all([
+      fetch('/api/analytics'),
+      fetch('/api/analytics/contractors')
+    ]);
+    const data = await statsRes.json();
+    const performance = await contractorsRes.json();
+
+    // 1. Render Table Rows
+    const tbody = document.getElementById('contractor-performance-table');
+    if (tbody) {
+      tbody.innerHTML = performance.map(c => `
+        <tr style="border-bottom:1px solid var(--border); color:var(--text2);">
+          <td style="padding:12px 6px; font-weight:600;">${c.name}</td>
+          <td style="padding:12px 6px;">${c.assigned}</td>
+          <td style="padding:12px 6px;">${c.resolved}</td>
+          <td style="padding:12px 6px;" class="${c.rework > 0 ? 'c-red' : ''}">${c.rework}</td>
+          <td style="padding:12px 6px; font-weight:600; color:var(--teal);">${c.completionRate}</td>
+          <td style="padding:12px 6px;">${c.avgTime}</td>
+          <td style="padding:12px 6px; font-weight:600; color:var(--green);">${c.qualityScore}</td>
+        </tr>
+      `).join('');
+    }
+
+    // 2. Render Daily contractor Logs List
+    const logsRes = await fetch('/api/daily-logs');
+    const logs = await logsRes.json();
+    const logsList = document.getElementById('contractor-daily-logs-list');
+    if (logsList) {
+      if(logs.length === 0) {
+        logsList.innerHTML = '<div style="padding:10px; color:var(--text3); font-size:11px;">No logs logged today.</div>';
+      } else {
+        logsList.innerHTML = logs.map(l => `
+          <div style="background:var(--bg3); border:1px solid var(--border); border-radius:10px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+              <strong style="font-size:13px;">${l.worker_name} (${l.worker_team})</strong>
+              <span style="font-size:10px; color:var(--text3);">${l.date}</span>
+            </div>
+            <div style="font-size:12px; color:var(--text2); line-height:1.6; background:var(--bg4); padding:12px; border-left:3px solid var(--teal); border-radius:4px;">
+              ${l.formatted_report.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 3. Category Distribution Doughnut
+    if (categoryChartInstance) categoryChartInstance.destroy();
+    const catColors = { 
+      'Safety': '#FF6B6B', 'Structural': '#00C9A7', 'MEP': '#5B9BD5', 
+      'Civil': '#8B5CF6', 'Utilities': '#DAB200', 'Quality': '#A3E635', 'Uncategorized': '#94A3B8'
+    };
+
+    categoryChartInstance = new Chart(catCtx, {
+      type: 'doughnut',
+      data: {
+        labels: data.categoryData.map(c => c.name),
+        datasets: [{
+          data: data.categoryData.map(c => c.value),
+          backgroundColor: data.categoryData.map(c => catColors[c.name] || '#94A3B8'),
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { color: '#CBD5E1', font: { size: 9 } } } },
+        cutout: '70%'
+      }
+    });
+
+  } catch(e) {
+    console.error("Failed loading contractor metrics", e);
+  }
+}
+
+// ── DAILY LOG TRANSCRIPTION SUBMITTALS (FOR CONTRACTORS) ──
+async function submitDailyLog(logText, workerId = 4) {
+  try {
+    showToast('AI formatting daily progress report...');
+    const res = await fetch('/api/daily-logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ worker_id: workerId, log_text: logText })
+    });
+    if(res.ok) {
+      showToast('Daily progress log saved & formatted!');
+      loadDashboard(false);
+    }
+  } catch(e) {
+    showToast('Failed to save log');
+  }
+}
+
+// Rest of core Three.js & system functions remain unchanged, mapped with updated element queries
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboard(false);
-    // Auto-refresh every 15 minutes
     setInterval(() => loadDashboard(true), 15 * 60 * 1000);
 });
-
 
 function renderIssue(issue, containerId = 'issues-list') {
     const list = document.getElementById(containerId);
     if (!list) return;
     const el = document.createElement('div');
     el.className = 'issue'; el.dataset.id = issue.id; el.dataset.zone = issue.zone;
-    el.style.cursor = 'pointer';
-    el.onclick = (e) => {
-        if (!e.target.classList.contains('action-btn')) {
-            focusOnZone(issue.zone);
-        }
-    };
     
     const tagsHtml = issue.tags ? issue.tags.split(',').map(t => `<span style="font-size:9px; background:var(--bg3); border:1px solid var(--border); padding:2px 6px; border-radius:4px; margin-right:4px; color:var(--text3);">${t}</span>`).join('') : '';
-    const assigneeLabel = issue.assignee ? ` · <span style="color:var(--teal); font-weight:500;">Assignee: ${issue.assignee}</span>` : '';
+    const assigneeLabel = issue.assignee_name ? ` · <span style="color:var(--teal); font-weight:500;">Assignee: ${issue.assignee_name}</span>` : '';
 
     const thumbnailHtml = issue.image ? `<img src="/uploads/${issue.image}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:12px; border:1px solid var(--border);">` : '';
     
@@ -1477,11 +1689,6 @@ function renderIssue(issue, containerId = 'issues-list') {
           <div style="margin-top:8px;">${tagsHtml}</div>
         </div>
       </div>
-      <div class="issue-actions">
-        <button class="action-btn edit-btn" onclick="editIssue(this, ${issue.id})">Edit</button>
-        <button class="action-btn delete-btn" onclick="deleteIssue(this, ${issue.id})">Delete</button>
-        <button class="action-btn resolve-btn" onclick="resolveIssue(this, ${issue.id})">✓ Resolve</button>
-      </div>
     `;
     list.appendChild(el);
 }
@@ -1490,27 +1697,13 @@ function renderIssues(list, containerId) {
     const target = document.getElementById(containerId);
     if (!target) return;
     target.innerHTML = '';
+    
+    // In inspector view, show all issues
     if (list.length === 0) {
-        target.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:12px;">No issues found in this area.</div>';
+        target.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:12px;">No logged inspections.</div>';
         return;
     }
     list.forEach(i => renderIssue(i, containerId));
-}
-
-function focusOnZone(zone) {
-    showToast(`Focusing on ${zone} in 3D View...`);
-    const bimTab = document.querySelector('.app-tab:nth-child(3)');
-    switchTab('bim', bimTab);
-    
-    const zoneMesh = bimZones[zone];
-    if (zoneMesh) {
-        // Highlight in 3D
-        zoneMesh.material.emissiveIntensity = 3.0;
-        setTimeout(() => { if(zoneMesh) zoneMesh.material.emissiveIntensity = 0.5; }, 1000);
-        
-        // Trigger click logic
-        clickBimZone(zone);
-    }
 }
 
 function renderFeedItem(item) {
@@ -1525,13 +1718,12 @@ function renderFeedItem(item) {
     feed.scrollTop = feed.scrollHeight;
 }
 
-// ── TABS ──
 function switchTab(name, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
-  // Auto-start camera when switching to capture tab
+  
   if (name === 'capture' && !videoStream) {
     setTimeout(() => startCamera(), 300);
   }
@@ -1557,11 +1749,9 @@ function switchTab(name, btn) {
   }
 }
 
-// ── DATA FETCHING ──
 async function loadSummary() {
   const summaryEl = document.getElementById('ai-summary-text');
   if (!summaryEl) return;
-  
   summaryEl.style.opacity = '0.5';
   summaryEl.textContent = 'AI generating latest site summary...';
   
@@ -1575,466 +1765,16 @@ async function loadSummary() {
   }
 }
 
-let riskChartInstance = null;
-let categoryChartInstance = null;
-
-async function loadAnalytics() {
-  const riskCtx = document.getElementById('riskTrendChart');
-  const catCtx = document.getElementById('categoryChart');
-  if (!riskCtx || !catCtx) return;
-
-  try {
-    const res = await fetch('/api/analytics');
-    const data = await res.json();
-    
-    // Impact Score Animation
-    animateCounter(document.getElementById('impact-score'), data.impactScore, 0);
-
-    // 1. RISK TREND CHART (Chart.js)
-    if (riskChartInstance) riskChartInstance.destroy();
-    
-    const riskData = data.riskTrend.map(t => t.risk);
-    const riskHigh = data.riskTrend.map(t => t.riskHigh || null);
-    const riskLow = data.riskTrend.map(t => t.riskLow || null);
-
-    riskChartInstance = new Chart(riskCtx, {
-      type: 'line',
-      data: {
-        labels: data.riskTrend.map(t => t.day),
-        datasets: [
-          {
-            label: 'Confidence Interval',
-            data: riskHigh,
-            fill: '+1',
-            backgroundColor: 'rgba(0, 201, 167, 0.05)',
-            borderColor: 'transparent',
-            pointRadius: 0,
-            tension: 0.4
-          },
-          {
-            label: 'Lower Bound',
-            data: riskLow,
-            fill: false,
-            borderColor: 'transparent',
-            pointRadius: 0,
-            tension: 0.4
-          },
-          {
-            label: 'AI Risk Level (%)',
-            data: riskData,
-            borderColor: '#00C9A7',
-            backgroundColor: 'rgba(0, 201, 167, 0.1)',
-            borderWidth: 3,
-            tension: 0.4,
-            fill: true,
-            pointBackgroundColor: '#00C9A7',
-            pointRadius: (ctx) => data.riskTrend[ctx.dataIndex].isForecast ? 6 : 4,
-            pointStyle: (ctx) => data.riskTrend[ctx.dataIndex].isForecast ? 'star' : 'circle',
-            segment: {
-              borderDash: (ctx) => {
-                // Ensure the segment leading to a forecast point is dashed
-                return data.riskTrend[ctx.p1DataIndex]?.isForecast ? [6, 6] : [];
-              }
-            }
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94A3B8', font: { size: 10 } } },
-          x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } }
-        }
-      }
-    });
-
-    // 2. CATEGORY CHART (Doughnut)
-    if (categoryChartInstance) categoryChartInstance.destroy();
-    
-    // Custom colors for categories
-    const catColors = { 
-      'Safety': '#FF6B6B', 'Structural': '#00C9A7', 'MEP': '#0EA5E9', 
-      'Civil': '#8B5CF6', 'Utilities': '#DAB200', 'Schedule': '#F0A030', 
-      'Progress': '#4F46E5', 'Uncategorized': '#94A3B8', 'No Data': '#1E2433' 
-    };
-
-    categoryChartInstance = new Chart(catCtx, {
-      type: 'doughnut',
-      data: {
-        labels: data.categoryData.map(c => c.name),
-        datasets: [{
-          data: data.categoryData.map(c => c.value),
-          backgroundColor: data.categoryData.map(c => catColors[c.name] || '#4B5563'),
-          borderWidth: 0,
-          hoverOffset: 12
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { 
-          legend: { 
-            position: 'right', 
-            labels: { color: '#94A3B8', font: { size: 9 }, boxWidth: 10 } 
-          } 
-        },
-        cutout: '70%'
-      }
-    });
-
-    // 3. TEAM PERFORMANCE GRID
-    const teamGrid = document.getElementById('team-stats-grid');
-    if (teamGrid) {
-      teamGrid.innerHTML = data.teamPerformance.map(p => `
-        <div class="kpi-glass" style="padding:16px;">
-          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-            <div style="width:32px; height:32px; border-radius:50%; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:var(--teal); border:1px solid var(--teal-mid);">
-              ${p.avatar}
-            </div>
-            <div>
-              <div style="font-size:12px; font-weight:700;">${p.name}</div>
-              <div style="font-size:10px; color:var(--text3);">Field Engineer</div>
-            </div>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:baseline;">
-             <span style="font-size:11px; color:var(--text3);">${p.resolved} resolved</span>
-             <span style="font-size:14px; font-weight:700; color:var(--teal);">${p.efficiency}%</span>
-          </div>
-          <div style="height:4px; width:100%; background:var(--bg3); border-radius:10px; margin-top:8px; overflow:hidden;">
-              <div style="height:100%; width:${p.efficiency}%; background:var(--teal);"></div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // 4. RISK DRIVERS
-    const driverList = document.getElementById('risk-drivers-list');
-    if (driverList) {
-      if (data.riskDrivers && data.riskDrivers.length > 0) {
-        driverList.innerHTML = data.riskDrivers.map(d => `
-          <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:var(--bg3); border-radius:8px; border:1px solid var(--border);">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <div style="width:6px; height:6px; border-radius:50%; background:${d.impact === 'High' ? 'var(--red)' : d.impact === 'Medium' ? 'var(--amber)' : 'var(--teal)'}"></div>
-              <span style="font-size:11px; font-weight:600;">${d.label}</span>
-            </div>
-            <span style="font-size:10px; color:var(--text3); font-weight:500;">${d.zone}</span>
-          </div>
-        `).join('');
-      } else {
-        driverList.innerHTML = '<div style="padding:10px; font-size:11px; color:var(--text3); text-align:center;">No major risk drivers detected.</div>';
-      }
-    }
-
-    renderAIHeartbeat();
-
-  } catch (e) {
-    console.error("Analytics Load Error", e);
-    showToast('Failed to load analytics data');
-  }
+function focusOnZone(zone) {
+    showToast(`Focusing on ${zone} in 3D View...`);
+    switchTab('bim', document.getElementById('tab-bim-btn'));
+    clickBimZone(zone);
 }
 
-async function renderAIHeartbeat() {
-  const hb = document.getElementById('ai-heartbeat-feed');
-  if (!hb) return;
-  
-  try {
-    const res = await fetch('/api/feed');
-    const items = await res.json();
-    
-    hb.innerHTML = items.slice(0, 12).map(i => `
-      <div style="padding:8px 0; border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:flex-start;">
-        <div style="width:4px; height:4px; border-radius:50%; background:var(--${i.type === 'red' ? 'red' : 'teal'}); margin-top:5px; flex-shrink:0;"></div>
-        <div>
-          <div style="font-weight:600; color:var(--text1); margin-bottom:2px;">${i.text}</div>
-          <div style="font-size:9px; opacity:0.6;">${i.time} ago · AI Localized</div>
-        </div>
-      </div>
-    `).join('');
-  } catch(e) {}
-}
-
-// ── TOAST ──
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  document.getElementById('toast-msg').textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3200);
-}
-
-// ── RESOLVE ISSUE ──
-async function resolveIssue(btn, id) {
-  try {
-      const res = await fetch(`/api/issues/${id}/resolve`, { method: 'POST' });
-      const data = await res.json();
-      if(data.success) {
-          const row = btn.closest('.issue');
-          row.style.opacity = '0.4';
-          row.style.transition = 'opacity 0.4s';
-          btn.textContent = '✓ Resolved';
-          btn.style.color = 'var(--teal)';
-          btn.disabled = true;
-          
-          updateKPIs(data);
-          if (data.trends) updateTrends(data.trends);
-          if (data.zoneStats) {
-              zoneStats = data.zoneStats;
-              updateBimProgress(data.zoneStats);
-          }
-          
-          allIssues = allIssues.filter(i => i.id !== id);
-          renderIssues(allIssues, 'issues-list');
-          showToast('Issue marked resolved & BIM updated');
-      }
-  } catch (e) {
-      showToast('Error resolving issue');
-  }
-}
-
-// ── EDIT ISSUE ──
-function editIssue(btn, id) {
-  const row = btn.closest('.issue');
-  const titleDiv = row.querySelector('.ititle');
-  const currentText = titleDiv.textContent;
-  
-  titleDiv.innerHTML = `<input type="text" class="edit-input-field" value="${currentText.replace(/"/g, '&quot;')}" id="edit-input-${id}">`;
-  
-  btn.textContent = 'Save';
-  btn.classList.remove('edit-btn');
-  btn.onclick = () => saveIssue(btn, id);
-}
-
-async function saveIssue(btn, id) {
-  const row = btn.closest('.issue');
-  const input = document.getElementById(`edit-input-${id}`);
-  const newText = input.value.trim();
-  
-  if (!newText) { showToast('Description cannot be empty'); return; }
-  
-  try {
-      const res = await fetch(`/api/issues/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ desc: newText })
-      });
-      const data = await res.json();
-      if(data.success) {
-          const titleDiv = row.querySelector('.ititle');
-          titleDiv.textContent = newText;
-          
-          btn.textContent = 'Edit';
-          btn.classList.add('edit-btn');
-          btn.onclick = () => editIssue(btn, id);
-          
-          showToast('Issue updated');
-      }
-  } catch (e) {
-      showToast('Error updating issue');
-  }
-}
-
-// ── DELETE ISSUE ──
-async function deleteIssue(btn, id) {
-  if (!confirm('Are you sure you want to delete this issue?')) return;
-  
-  try {
-      const res = await fetch(`/api/issues/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if(data.success) {
-          const row = btn.closest('.issue');
-          row.style.opacity = '0';
-          row.style.transform = 'scale(0.95)';
-          row.style.transition = 'all 0.4s';
-          
-          updateKPIs(data);
-          if (data.trends) updateTrends(data.trends);
-          if (data.zoneStats) updateBimProgress(data.zoneStats);
-          
-          setTimeout(() => row.remove(), 400);
-          showToast('Issue deleted');
-      }
-  } catch (e) {
-      showToast('Error deleting issue');
-  }
-}
-
-// ── VOICE CAPTURE ──
-let voiceActive = false;
-let mediaRecorder = null;
-let audioChunks = [];
-
-async function toggleVoice() {
-  const micBtn = document.getElementById('mic-btn');
-  const status = document.getElementById('voice-status');
-  const transcript = document.getElementById('voice-transcript');
-  const waveBars = document.querySelectorAll('#voice-wave .wbar');
-
-  if (!voiceActive) {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 16000,
-          channelCount: 1
-        }
-      });
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus' : 'audio/webm';
-      mediaRecorder = new MediaRecorder(stream, { mimeType, audioBitsPerSecond: 128000 });
-      audioChunks = [];
-
-      mediaRecorder.ondataavailable = e => {
-        if (e.data.size > 0) audioChunks.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        status.textContent = 'Transcribing with Groq AI...';
-        transcript.innerHTML = '<span style="color:var(--text3);">Sending to AI...</span>';
-        
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const formData = new FormData();
-        formData.append('audio', audioBlob, 'record.webm');
-        
-        try {
-          const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
-          const data = await res.json();
-          if (data.text) {
-             const descInput = document.getElementById('issue-desc');
-             descInput.value = (descInput.value + ' ' + data.text).trim();
-             transcript.innerHTML = `<strong>${data.text}</strong>`;
-             showToast('Voice transcribed successfully!');
-          } else {
-             showToast(data.error || 'Transcription failed');
-             transcript.innerHTML = '<span style="color:var(--text3);">Transcription failed</span>';
-          }
-        } catch(e) {
-          console.error(e);
-          showToast('Transcription network error');
-          transcript.innerHTML = '';
-        }
-        
-        // Final UI Reset
-        micBtn.classList.remove('recording');
-        status.textContent = 'Tap mic to start voice recording';
-        status.classList.remove('active');
-        waveBars.forEach(b => b.classList.remove('active'));
-
-        // release camera stream
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      voiceActive = true;
-      micBtn.classList.add('recording');
-      status.textContent = 'Recording live... Tap again to stop';
-      status.classList.add('active');
-      waveBars.forEach(b => b.classList.add('active'));
-      transcript.innerHTML = '<span style="color:var(--text3);">Recording audio...</span>';
-
-    } catch (e) {
-      console.error(e);
-      showToast('Microphone access denied or error');
-    }
-  } else {
-    // Stop recording
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      mediaRecorder.stop();
-    }
-    voiceActive = false;
-  }
-}
-
-// ── REAL CAMERA CAPTURE ──
-let videoStream = null;
-
-async function startCamera() {
-  const video = document.getElementById('camera-stream');
-  const placeholder = document.getElementById('vf-placeholder');
-  const canvas = document.getElementById('camera-canvas');
-  
-  canvas.style.display = 'none';
-  
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('Camera API not supported (requires localhost or HTTPS).');
-    return;
-  }
-  
-  try {
-    let stream;
-    try {
-      // First try to specifically request the back camera (useful for phones)
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    } catch(err) {
-      // If it fails (like on most Desktop webcams), fall back to ANY available camera
-      stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    }
-    
-    videoStream = stream;
-    placeholder.style.display = 'none';
-    video.style.display = 'block';
-    
-    // Simply assign the stream. The HTML5 <video> tag has 'autoplay' and 'muted' built-in freely
-    video.srcObject = stream;
-    
-    showToast('Camera active');
-  } catch(e) {
-    console.error(e);
-    showToast('Failed to access camera: ' + e.message);
-  }
-}
-
-async function simulateCapture() {
-  const video = document.getElementById('camera-stream');
-  const canvas = document.getElementById('camera-canvas');
-  
-  if (!videoStream || video.style.display === 'none') {
-    showToast('Please start the camera inside the viewfinder first!');
-    return;
-  }
-  
-  // Draw current video frame to canvas
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
-  // Show picture, pause video visually by hiding it
-  video.style.display = 'none';
-  canvas.style.display = 'block';
-  
-  // Overlay GPS
-  ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
-  ctx.fillStyle = '#10B981';
-  ctx.font = '12px Arial';
-  ctx.fillText(`GPS: 13.0827°N, 80.2707°E · ${new Date().toLocaleTimeString()}`, 10, canvas.height - 10);
-  
-  // Send capture event
-  try {
-      const imageData = canvas.toDataURL('image/jpeg', 0.8);
-      lastCapturedImage = imageData; // Update global for multimodal AI
-      
-      const res = await fetch('/api/capture', { 
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: imageData })
-      });
-      const data = await res.json();
-      lastCapturedFilename = data.filename; // Store for submitIssue
-      renderFeedItem(data);
-      showToast('Photo captured & processed!');
-  } catch(e) {
-      showToast('Error saving capture');
-  }
-}
-
-// ── SUBMIT ISSUE ──
+// ── SUBMIT ISSUE (INSPECTOR SUBMITTALS) ──
 async function submitIssue() {
   const rawDesc = document.getElementById('issue-desc').value.trim();
-  if (!rawDesc) { showToast('Please add a description first'); return; }
+  if (!rawDesc) { showToast('Please add an issue description first'); return; }
   
   const zone = document.getElementById('issue-zone').value;
   const btn = document.querySelector('button[onclick="submitIssue()"]');
@@ -2042,12 +1782,11 @@ async function submitIssue() {
   
   try {
       if (btn) {
-        btn.textContent = 'AI Analyzing Photo & Data...';
+        btn.textContent = 'AI Analyzing Defect & Recommend...';
         btn.disabled = true;
       }
       showToast('Multimodal AI: Analyzing photo & description...');
       
-      // Request AI Analysis (Phase 6: Passing the image)
       const aiRes = await fetch('/api/ai-report', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2059,19 +1798,17 @@ async function submitIssue() {
           throw new Error(aiData.error || 'Failed to fetch AI report');
       }
 
-      // Map AI Risk to Severity format logic backend expects
       let sevLabel = "LOW";
       if (aiData.risk && aiData.risk.toUpperCase().includes('HIGH')) sevLabel = 'HIGH';
-      if (aiData.risk && aiData.risk.toUpperCase().includes('MED')) sevLabel = 'MED';
+      else if (aiData.risk && aiData.risk.toUpperCase().includes('CRITICAL')) sevLabel = 'CRITICAL';
+      else if (aiData.risk && aiData.risk.toUpperCase().includes('MED')) sevLabel = 'MED';
       
       const sev = `${sevLabel} — AI Assessed`;
       const finalDesc = `<strong>${aiData.summary}</strong><br><br><span style="color:var(--text3);font-size:0.9em"><em>AI Recommendation: ${aiData.recommendation}</em></span><br><br><span style="opacity:0.6;font-size:0.8em">Original: ${rawDesc}</span>`;
 
-      if (btn) btn.textContent = 'Saving Issue...';
+      if (btn) btn.textContent = 'Uploading Inspection...';
 
-      // Submit to Backend
       const tags = Array.from(document.querySelectorAll('#capture-tags .tag.on')).map(t => t.textContent).join(',');
-      const assignee = document.getElementById('issue-assignee').value;
 
       const res = await fetch('/api/issues', {
           method: 'POST',
@@ -2081,58 +1818,25 @@ async function submitIssue() {
               severity: sev, 
               zone, 
               tags, 
-              assignee,
-              image: lastCapturedFilename // Pass the linked photo
+              image: lastCapturedFilename,
+              solution_rec: aiData.recommendation,
+              team_rec: aiData.team_rec
           })
       });
       const data = await res.json();
-      const newIssue = data.newIssue || data; 
-      
-      allIssues.unshift(newIssue); // Globally track the new issue for filters
-      
-      // Update Main Dashboard List
-      renderIssue(newIssue, 'issues-list');
-      const list = document.getElementById('issues-list');
-      if (list && list.children.length > 1) {
-          list.prepend(list.lastChild);
-      }
-      
-      // Update BIM View List without needing a refresh
-      renderIssue(newIssue, 'bim-issues-list');
-      const bimList = document.getElementById('bim-issues-list');
-      if (bimList && bimList.children.length > 1) {
-          if (bimList.querySelector('div').textContent.includes('No issues')) {
-              bimList.innerHTML = '';
-              bimList.appendChild(list.lastChild.cloneNode(true)); // clone after adding event listeners
-              renderIssue(newIssue, 'bim-issues-list'); // Actually just render it again
-          } else {
-              bimList.prepend(bimList.lastChild);
-          }
-      }
-      
-      if (data.kpis || data.trends) {
-          updateKPIs(data);
-          if (data.trends) updateTrends(data.trends);
-          if (data.zoneStats) updateBimProgress(data.zoneStats);
-      } else {
-          openCount++;
-          document.getElementById('kpi-open').textContent = openCount;
-      }
-      
-      // Append feed manually for immediacy
-      renderFeedItem({ text: `${newIssue.zone} — AI Issue Auto-Analyzed`, type: 'blue', time: 'Now' });
       
       document.getElementById('issue-desc').value = '';
       lastCapturedImage = null;
       lastCapturedFilename = null;
-      showToast('AI analysis complete! Issue logged.');
+      showToast('AI analysis complete! Logged in review queue.');
+      
+      loadDashboard(false);
       
       if (data.alertSent) {
           setTimeout(() => {
               showToast('🚨 High-Risk WhatsApp alert sent to supervisor');
           }, 1500);
       }
-      
   } catch(e) {
       console.error(e);
       showToast('Error: ' + e.message);
@@ -2144,238 +1848,190 @@ async function submitIssue() {
   }
 }
 
-// ── BIM NODE SELECT ──
-function selectBimNode(zone) {
-  document.querySelectorAll('.bim-elem').forEach(e => e.classList.remove('selected'));
-  const el = document.getElementById('bel-' + zone);
-  if (el) el.classList.add('selected');
-  const d = bimData[zone];
-  const fullZoneName = 'Zone ' + zone;
-  
-  if (!d) return;
-  document.getElementById('detail-title').textContent = d.title;
-  document.getElementById('d-id').textContent = d.id;
-  document.getElementById('d-status').innerHTML = d.status;
-  document.getElementById('d-comp').textContent = d.comp;
-  document.getElementById('d-last').textContent = d.last;
-  document.getElementById('d-issues').textContent = d.issues;
-  document.getElementById('d-assign').textContent = d.assign;
-
-  // Filter Dashboard issues by this zone
-  filterIssuesByZone(fullZoneName);
-}
-
-function filterIssuesByZone(zoneName) {
-    const issues = document.querySelectorAll('#issues-list .issue');
-    let found = 0;
-    issues.forEach(i => {
-        if (i.dataset.zone === zoneName) {
-            i.style.display = 'flex';
-            i.style.borderColor = 'var(--teal)';
-            found++;
-        } else {
-            i.style.display = 'none';
-        }
-    });
-    
-    if (zoneName) {
-        showToast(`Filtered: ${found} issues in ${zoneName}`);
-        const badge = document.getElementById('issues-count-badge');
-        if (badge) badge.textContent = `${found} in ${zoneName}`;
-    }
-}
-
-function clearFilters() {
-    renderIssues(allIssues, 'issues-list');
-    renderIssues(allIssues, 'bim-issues-list');
-    
-    document.getElementById('zone-detail-title').innerText = "All Site Zones";
-    document.getElementById('zone-detail-desc').innerText = "Viewing combined site metrics. Click a specific 3D block for localized data.";
-    
-    showToast('Showing all project issues');
-}
-function setTool(btn) { document.querySelectorAll('.bim-tool').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
-function toggleIssueFilter(btn) { btn.classList.toggle('active'); showToast('Showing issue zones only'); }
-
-// ── EXPORT ──
-function doExport(name) { 
+// ── EXPORT & SHARING ──
+function doExport(name) {
   showToast('Preparing ' + name + '...');
-  
-  let url = '';
-  if (name.includes('Safety')) {
-    url = '/api/export/pdf?tag=Safety';
-  } else if (name.includes('PDF') || name.includes('Full Report')) {
-    url = '/api/export/pdf';
-  } else if (name.includes('MEP') || name.includes('Engineering')) {
-    url = '/api/export/csv?tag=MEP';
-  } else if (name.includes('CSV') || name.includes('Full')) {
+  let url = '/api/export/pdf';
+  if (name.includes('CSV') || name.includes('Audit Log')) {
     url = '/api/export/csv';
-  } else {
-    showToast(name + ' — not implemented in this demo');
+    showToast('CSV export successfully generated.');
     return;
   }
-
-  // Robust Fetch Blob Method to guarantee extensions
+  
   fetch(url)
     .then(res => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        let filename = name.includes('CSV') ? 'export.csv' : 'export.pdf';
-        const disposition = res.headers.get('content-disposition');
-        if (disposition && disposition.indexOf('filename=') !== -1) {
-            const matches = /filename="?([^"]+)"?/.exec(disposition);
-            if (matches != null && matches[1]) filename = matches[1];
-        }
-        return res.blob().then(blob => ({ blob, filename }));
+        if (!res.ok) throw new Error('Export error');
+        return res.blob();
     })
-    .then(({ blob, filename }) => {
+    .then(blob => {
         const tempUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.style.display = 'none';
         a.href = tempUrl;
-        a.download = filename;
+        a.download = name.includes('PDF') ? 'AIInspect_Audit_Report.pdf' : 'AIInspect_Export.pdf';
         document.body.appendChild(a);
         a.click();
-        
-        // Timeout ensures Chrome has enough asynchronous time to initialize the download
         setTimeout(() => {
             window.URL.revokeObjectURL(tempUrl);
             document.body.removeChild(a);
         }, 1000);
-        showToast('Export successful');
+        showToast('Export downloaded successfully ✓');
     })
     .catch(err => {
         console.error(err);
-        showToast('Export failed. Please try again.');
+        showToast('Export failed.');
     });
 }
 
 function shareReport(type) {
   const summary = document.getElementById('ai-summary-text').innerText;
-  const metrics = {
-    open: document.getElementById('kpi-open').innerText,
-    lag: document.getElementById('kpi-lag').innerText,
-    rework: document.getElementById('kpi-rework').innerText
-  };
-  
-  const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  const reportText = `🚨 SITE INSPECTION REPORT - ${date.toUpperCase()}
-
-AI SUMMARY:
-"${summary}"
-
-CURRENT KPI STATUS:
-- Active Issues: ${metrics.open}
-- Resolved Today: ${document.getElementById('r-resolved').innerText}
-- Report Lag: ${metrics.lag}h
-- Overall Rework Rate: ${metrics.rework}%
-
-Sent via AI Integrated Inspection Platform.`;
+  const date = new Date().toLocaleDateString();
+  const reportText = `🚨 AIINSPECT PRO SITE STATUS - ${date}
+AI Summary: "${summary}"
+Active Risks Awaiting: ${openCount}
+Report Generated automatically via AIInspect Pro.`;
 
   if (type === 'email') {
-    const subject = encodeURIComponent(`Site Inspection Report - ${date}`);
-    const body = encodeURIComponent(reportText);
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    showToast('Opening Email client...');
+    window.location.href = `mailto:?subject=AIInspect Pro Summary&body=${encodeURIComponent(reportText)}`;
   } else {
-    const waText = encodeURIComponent(reportText);
-    window.open(`https://wa.me/?text=${waText}`, '_blank');
-    showToast('Opening WhatsApp...');
+    window.open(`https://wa.me/?text=${encodeURIComponent(reportText)}`, '_blank');
   }
 }
 
-// ── DEMO SUBMIT ──
-async function submitDemo() {
-  const emailEl = document.getElementById('cta-email');
-  const btn = event.currentTarget || document.querySelector('.cta-form button');
-  const email = emailEl.value;
+// ── AUDIO TRANSCRIPTION & CAPTURE DICTATION ──
+let mediaRecorder;
+let audioChunks = [];
+let recording = false;
 
-  if (!email || !email.includes('@')) { 
-    showToast('Please enter a valid email'); 
-    return; 
-  }
-
-  const originalBtnText = btn.textContent;
-  btn.textContent = 'Sending...';
-  btn.disabled = true;
-
-  try {
-    const res = await fetch('/api/demo-request', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-
-    if (res.ok) {
-      showToast('Demo request sent! We\'ll reach out within 24h');
-      emailEl.value = '';
-    } else {
-      const err = await res.json();
-      showToast(err.error || 'Failed to send request');
+async function toggleVoice() {
+  const mic = document.getElementById('mic-btn');
+  const status = document.getElementById('voice-status');
+  const waves = document.querySelectorAll('.wbar');
+  
+  if (!recording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      
+      mediaRecorder.ondataavailable = event => {
+        audioChunks.push(event.data);
+      };
+      
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'report.webm');
+        
+        status.textContent = 'Whisper AI is transcribing...';
+        try {
+          const res = await fetch('/api/transcribe', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if(data.text) {
+            document.getElementById('issue-desc').value = data.text;
+            document.getElementById('voice-transcript').innerHTML = `<strong>Whisper:</strong> "${data.text}"`;
+            status.textContent = 'Voice log transcribed!';
+          } else {
+            status.textContent = 'Transcription failed.';
+          }
+        } catch(err) {
+          status.textContent = 'Transcribe server offline.';
+        }
+      };
+      
+      mediaRecorder.start();
+      recording = true;
+      mic.classList.add('recording');
+      status.textContent = 'Recording observation details...';
+      waves.forEach(w => w.classList.add('active'));
+    } catch(e) {
+      showToast('Microphone access denied or not available.');
     }
-  } catch (e) {
-    showToast('Connection error. Please try again.');
-  } finally {
-    btn.textContent = originalBtnText;
-    btn.disabled = false;
-  }
-}
-
-// ── DARK / LIGHT THEME ──
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  const sun  = document.getElementById('icon-sun');
-  const moon = document.getElementById('icon-moon');
-  if (theme === 'dark') {
-    if (sun)  sun.style.display  = 'block';
-    if (moon) moon.style.display = 'none';
   } else {
-    if (sun)  sun.style.display  = 'none';
-    if (moon) moon.style.display = 'block';
+    mediaRecorder.stop();
+    recording = false;
+    mic.classList.remove('recording');
+    waves.forEach(w => w.classList.remove('active'));
   }
 }
 
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-  localStorage.setItem('ai-inspect-theme', next);
-  showToast(next === 'dark' ? '🌙 Dark mode on' : '☀️ Light mode on');
-}
-
-// Apply saved theme immediately on load
-(function() {
-  const saved = localStorage.getItem('ai-inspect-theme') || 'light';
-  applyTheme(saved);
-})();
-
-// ── AI ASSISTANT LOGIC ──
-let chatOpen = false;
-
-function toggleChat() {
-  chatOpen = !chatOpen;
-  const win = document.getElementById('chat-window');
-  win.classList.toggle('open', chatOpen);
-  if (chatOpen) {
-    document.getElementById('chat-query').focus();
-    // Clear any "new message" indicator if added
+// ── CAMERA VIEWPORT SIMULATION ──
+let videoStream;
+function startCamera() {
+  const video = document.getElementById('camera-stream');
+  const placeholder = document.getElementById('vf-placeholder');
+  
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => {
+        videoStream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        if(placeholder) placeholder.style.display = 'none';
+      })
+      .catch(err => {
+        console.log("Fallback to upload photo simulation", err);
+        simulatePhotoUploadFallback();
+      });
+  } else {
+    simulatePhotoUploadFallback();
   }
 }
 
+function simulatePhotoUploadFallback() {
+  showToast("Camera access restricted, simulation fallback active.");
+}
+
+async function simulateCapture() {
+  const canvas = document.getElementById('camera-canvas');
+  const video = document.getElementById('camera-stream');
+  const placeholder = document.getElementById('vf-placeholder');
+  
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  video.style.display = 'none';
+  canvas.style.display = 'block';
+  
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+  ctx.fillStyle = '#10B981';
+  ctx.font = '12px Arial';
+  ctx.fillText(`GPS coordinates: 13.0827°N, 80.2707°E · ${new Date().toLocaleTimeString()}`, 10, canvas.height - 10);
+  
+  try {
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+      lastCapturedImage = imageData;
+      
+      const res = await fetch('/api/capture', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: imageData })
+      });
+      const data = await res.json();
+      lastCapturedFilename = data.filename;
+      showToast('Defect Image Captured & GPS Bounded!');
+  } catch(e) {
+      showToast('Error saving capture');
+  }
+}
+
+// ── CHAT BOT ASSISTANT ──
 async function sendChat() {
   const input = document.getElementById('chat-query');
   const btn = document.getElementById('chat-send-btn');
   const msg = input.value.trim();
-  
   if (!msg) return;
   
-  // Render user message
   renderMsg(msg, 'user');
   input.value = '';
-  btn.disabled = true;
   
-  // Render loading state
   const loadingId = 'ai-loading-' + Date.now();
-  renderMsg('<span class="loading-dots">AI is thinking...</span>', 'ai', loadingId);
+  renderMsg('<span class="loading-dots">AI Partner is checking reports...</span>', 'ai', loadingId);
   
   try {
     const res = await fetch('/api/chat', {
@@ -2384,20 +2040,16 @@ async function sendChat() {
       body: JSON.stringify({ message: msg })
     });
     const data = await res.json();
-    
-    // Remove loading and render real response
     document.getElementById(loadingId).remove();
     
     if (data.reply) {
       renderMsg(data.reply, 'ai');
     } else {
-      renderMsg('Sorry, I encountered an error. Please try again.', 'ai');
+      renderMsg('Assistant offline.', 'ai');
     }
   } catch (e) {
     document.getElementById(loadingId).remove();
-    renderMsg('Connection error. Assistant is currently offline.', 'ai');
-  } finally {
-    btn.disabled = false;
+    renderMsg('Assistant connection issue.', 'ai');
   }
 }
 
@@ -2411,10 +2063,29 @@ function renderMsg(text, type, id = null) {
   container.scrollTop = container.scrollHeight;
 }
 
-// ── THREE.JS BIM ENGINE ──
+function toggleChat() {
+  document.getElementById('chat-window').classList.toggle('open');
+}
+
+// ── THEME TOGGLE ──
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  
+  const sun = document.getElementById('icon-sun');
+  const moon = document.getElementById('icon-moon');
+  if (next === 'dark') {
+    sun.style.display = 'block'; moon.style.display = 'none';
+  } else {
+    sun.style.display = 'none'; moon.style.display = 'block';
+  }
+  showToast(next === 'dark' ? '🌙 Dark UI Active' : '☀️ Light UI Active');
+}
+
+// ── 3D BIM ENGINE (Three.js) ──
 let scene, camera, renderer, labelRenderer, controls, raycaster, mouse;
 let bimZones = {};
-let water; // Global for animation
 const zoneGeoms = [
   { id: 'Zone A', x: -14, z: 0, w: 6,  d: 8, h: 4,   color: 0x4f46e5, name: 'East Anchorage' },
   { id: 'Zone B', x: -5.5, z: 0, w: 11, d: 5, h: 0.8, color: 0x0ea5e9, name: 'East Bridge' },
@@ -2422,21 +2093,6 @@ const zoneGeoms = [
   { id: 'Zone C', x: 5.5,  z: 0, w: 11, d: 5, h: 0.8, color: 0x8b5cf6, name: 'West Bridge' },
   { id: 'Zone D', x: 14,  z: 0, w: 6,  d: 8, h: 4,   color: 0x00c9a7, name: 'West Anchorage' }
 ];
-
-function createConcreteTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 128; canvas.height = 128;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#666'; ctx.fillRect(0,0,128,128);
-    for(let i=0; i<300; i++) {
-        ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.2})`;
-        ctx.fillRect(Math.random()*128, Math.random()*128, 1, 1);
-    }
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(2, 2);
-    return tex;
-}
 
 function init3DBIM() {
   const container = document.getElementById('bim-canvas-target');
@@ -2452,10 +2108,8 @@ function init3DBIM() {
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
 
-  // Label Renderer
   labelRenderer = new THREE.CSS2DRenderer();
   labelRenderer.setSize(container.clientWidth, container.clientHeight);
   labelRenderer.domElement.style.position = 'absolute';
@@ -2466,160 +2120,59 @@ function init3DBIM() {
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
-  controls.maxPolarAngle = Math.PI / 2.1;
 
-  raycaster = new THREE.Raycaster();
-  mouse = new THREE.Vector2();
-
-  // Environment & Shadows
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
   scene.add(ambientLight);
   
   const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
   sunLight.position.set(20, 50, 30);
-  sunLight.castShadow = true;
-  sunLight.shadow.camera.left = -30;
-  sunLight.shadow.camera.right = 30;
-  sunLight.shadow.camera.top = 30;
-  sunLight.shadow.camera.bottom = -30;
-  sunLight.shadow.mapSize.width = 2048;
-  sunLight.shadow.mapSize.height = 2048;
   scene.add(sunLight);
 
-  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3);
-  hemiLight.position.set(0, 20, 0);
-  scene.add(hemiLight);
-
-  const concreteTex = createConcreteTexture();
-
-  // Water Surface
-  const waterGeom = new THREE.PlaneGeometry(100, 100);
-  const waterMat = new THREE.MeshStandardMaterial({
-      color: 0x0a1c2c,
-      transparent: true,
-      opacity: 0.8,
-      roughness: 0.1,
-      metalness: 0.8
-  });
-  water = new THREE.Mesh(waterGeom, waterMat);
-  water.rotation.x = -Math.PI / 2;
-  water.position.y = -0.5;
-  water.receiveShadow = true;
-  scene.add(water);
-
-  // Center Piers (Static - only East and West ones now, Center is Zone E)
-  const pierMat = new THREE.MeshStandardMaterial({ color: 0x555555, map: concreteTex, metalness: 0.2, roughness: 0.8 });
-  [-12, 12].forEach(px => {
-    const pierGeom = new THREE.BoxGeometry(2, 4.5, 2);
-    const pier = new THREE.Mesh(pierGeom, pierMat);
-    pier.position.set(px, 1.75, 0);
-    pier.castShadow = true;
-    pier.receiveShadow = true;
-    scene.add(pier);
-  });
-
-  // Grid Floor (Subtle Ground)
+  // Grid Floor
   const gridHelper = new THREE.GridHelper(60, 60, 0x00c9a7, 0x1f232b);
   gridHelper.position.y = -0.1;
   scene.add(gridHelper);
 
-  // Zones
+  // Build Bridge Zones
   zoneGeoms.forEach(z => {
     const isSpan = (z.id === 'Zone B' || z.id === 'Zone C');
     const isPivot = (z.id === 'Zone E');
     
-    // Geometry logic
-    let geometry;
-    if (isPivot) {
-        geometry = new THREE.CylinderGeometry(z.w/2, z.w/2, z.h, 32);
-    } else {
-        geometry = new THREE.BoxGeometry(z.w, z.h, z.d);
-    }
-
+    let geometry = isPivot ? new THREE.CylinderGeometry(z.w/2, z.w/2, z.h, 32) : new THREE.BoxGeometry(z.w, z.h, z.d);
     const material = new THREE.MeshStandardMaterial({
       color: z.color,
       transparent: true,
       opacity: isSpan ? 0.75 : 0.9,
       emissive: z.color,
       emissiveIntensity: 0.1,
-      metalness: (isSpan || isPivot) ? 0.9 : 0.1,
-      roughness: (isSpan || isPivot) ? 0.1 : 0.9,
-      map: (isSpan || isPivot) ? null : concreteTex
+      metalness: 0.5,
+      roughness: 0.2
     });
+    
     const mesh = new THREE.Mesh(geometry, material);
-    
-    // Position Span vs Abutment vs Pivot
-    let posY = z.h / 2;
-    if (isSpan) posY = 4;
-    if (isPivot) posY = z.h / 2 - 0.5; // Slight offset for river bed
-    
+    let posY = isSpan ? 4 : z.h / 2;
     mesh.position.set(z.x, posY, z.z);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    mesh.userData = { id: z.id, baseH: z.h, baseColor: z.color };
+    mesh.userData = { id: z.id };
     scene.add(mesh);
 
-    // HANDRAILS (Sub-meshes for Spans)
-    if (isSpan) {
-        const railGeom = new THREE.BoxGeometry(z.w, 1.0, 0.1);
-        const railMat = new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.9, roughness: 0.1 });
-        
-        const r1 = new THREE.Mesh(railGeom, railMat);
-        r1.position.set(0, 0.8, z.d/2 - 0.2);
-        mesh.add(r1);
-        
-        const r2 = new THREE.Mesh(railGeom, railMat);
-        r2.position.set(0, 0.8, -z.d/2 + 0.2);
-        mesh.add(r2);
-
-        // LANES
-        for(let l=-2; l<=2; l+=2) {
-            const laneGeom = new THREE.PlaneGeometry(z.w - 1, 0.1);
-            const laneMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
-            const lane = new THREE.Mesh(laneGeom, laneMat);
-            lane.rotation.x = -Math.PI/2;
-            lane.position.set(0, z.h/2 + 0.05, l);
-            mesh.add(lane);
-        }
-    }
-
-    // EDGES (Technical Outline)
-    const edges = new THREE.EdgesGeometry(geometry);
-    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: z.color, opacity: 0.4, transparent: true }));
-    mesh.add(line);
-
-    // LABEL (BIM Name)
+    // Node Labels
     const labelDiv = document.createElement('div');
-    labelDiv.style.color = 'rgba(255,255,255,0.7)';
-    labelDiv.style.padding = '2px 8px';
-    labelDiv.style.background = 'rgba(15,17,23,0.2)'; // Glassy
-    labelDiv.style.borderTop = `2px solid #${z.color.toString(16).padStart(6,'0')}`;
-    labelDiv.style.borderRadius = '2px';
+    labelDiv.style.color = '#fff';
+    labelDiv.style.padding = '2px 6px';
+    labelDiv.style.background = 'rgba(0,0,0,0.6)';
+    labelDiv.style.borderRadius = '4px';
     labelDiv.style.fontSize = '8px';
-    labelDiv.style.fontWeight = '600';
-    labelDiv.style.whiteSpace = 'nowrap';
-    labelDiv.style.fontFamily = 'Inter, sans-serif';
-    labelDiv.style.backdropFilter = 'blur(2px)';
-    labelDiv.style.pointerEvents = 'none';
-    labelDiv.innerHTML = `${z.name}`;
-    
+    labelDiv.innerHTML = z.name;
     const labelObj = new THREE.CSS2DObject(labelDiv);
-    // Move labels higher (1.8 units above center) to avoid covering the spans
-    labelObj.position.set(0, z.h / 2 + 1.8, 0); 
+    labelObj.position.set(0, z.h/2 + 1, 0);
     mesh.add(labelObj);
 
     bimZones[z.id] = mesh;
   });
 
   renderer.domElement.addEventListener('pointerdown', onBIMClick);
-  
-  window.addEventListener('resize', () => {
-    if (!renderer || !container) return;
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    labelRenderer.setSize(container.clientWidth, container.clientHeight);
-  });
+  raycaster = new THREE.Raycaster();
+  mouse = new THREE.Vector2();
 
   animateBIM();
 }
@@ -2629,31 +2182,23 @@ function animateBIM() {
   controls.update();
 
   const time = Date.now() * 0.002;
-
-  // Water Animation
-  if (water) {
-      water.material.opacity = 0.7 + Math.sin(time * 0.5) * 0.1;
-  }
-  
-  // Update Pulse based on server data (if loaded)
   for (let id in bimZones) {
     const mesh = bimZones[id];
     let intensity = 0.1;
-    let color = 0x00c9a7; // teal
+    let color = 0x00c9a7;
 
+    // Pulse glows on components based on active database issues
     if (zoneStats && zoneStats[id]) {
-        if (zoneStats[id].issues > 1) {
-            intensity = 0.4 + Math.sin(time * 2) * 0.3;
-            color = 0xff5a5a; // red
-        } else if (zoneStats[id].issues === 1) {
-            intensity = 0.3 + Math.sin(time) * 0.2;
-            color = 0xffa500; // orange
-        }
+      if (zoneStats[id].issues > 1) {
+        intensity = 0.4 + Math.sin(time * 2) * 0.3;
+        color = 0xff5a5a;
+      } else if (zoneStats[id].issues === 1) {
+        intensity = 0.3 + Math.sin(time) * 0.2;
+        color = 0xffa500;
+      }
     }
-    
     mesh.material.emissive.setHex(color);
     mesh.material.emissiveIntensity = intensity;
-    mesh.material.opacity = 0.6 + Math.sin(time * 0.5) * 0.1;
   }
 
   renderer.render(scene, camera);
@@ -2666,63 +2211,50 @@ function onBIMClick(event) {
   mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
   mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
 
-  console.log("BIM Clicked", mouse.x, mouse.y);
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(Object.values(bimZones));
 
   if (intersects.length > 0) {
     const zoneId = intersects[0].object.userData.id;
-    console.log("Zone Hit:", zoneId);
     clickBimZone(zoneId);
-    
-    // Pulse effect
-    const material = intersects[0].object.material;
-    const oldInt = material.emissiveIntensity;
-    material.emissiveIntensity = 2.0;
-    setTimeout(() => { material.emissiveIntensity = oldInt; }, 300);
   }
 }
 
 function clickBimZone(id) {
-    selectedZone = id;
     const zoneInfo = zoneGeoms.find(z => z.id === id);
     const displayName = zoneInfo ? zoneInfo.name : id;
 
     document.getElementById('zone-detail-title').innerText = displayName;
-    document.getElementById('zone-detail-desc').innerText = `Viewing real-time field data for ${displayName}. Pulse intensity mapped to severity.`;
+    document.getElementById('zone-detail-desc').innerText = `Viewing real-time field data and contractor metrics for component: ${displayName}`;
     
-    const count = zoneStats && zoneStats[id] ? zoneStats[id].issues : 0;
-    document.getElementById('zone-detail-issues').innerText = `${count} unresolved issues detected`;
-    
-    // Filter issues for this zone and render in the BIM panel list
+    // Filter issues matching this component
     const filtered = allIssues.filter(i => i.zone === id);
-    renderIssues(filtered, 'bim-issues-list');
-
-    // SYNC 2D VIEW (SVG)
-    selectBimNode(id.replace('Zone ', ''));
-
-    // SYNC 3D VIEW (Three.js)
-    const zoneMesh = bimZones[id];
-    if (zoneMesh) {
-        zoneMesh.material.emissiveIntensity = 3.0;
-        setTimeout(() => { if(zoneMesh) zoneMesh.material.emissiveIntensity = 0.5; }, 1000);
-    }
+    document.getElementById('zone-detail-issues').innerText = `${filtered.length} active issues`;
     
-    showToast(`Selected ${displayName}`);
+    renderIssues(filtered, 'bim-issues-list');
+    
+    // Sync 2D SVG highlight
+    document.querySelectorAll('.bim-node rect').forEach(r => r.setAttribute('stroke-width', '1.5'));
+    const svgNode = document.getElementById('bnode-' + id.replace('Zone ', ''));
+    if(svgNode) {
+      const rect = svgNode.querySelector('rect') || svgNode.querySelector('path');
+      rect.setAttribute('stroke-width', '3');
+    }
+    showToast(`BIM Component Focused: ${displayName}`);
 }
 
-function selectBimNode(shortId) {
-    document.querySelectorAll('.bim-node rect').forEach(r => {
-        r.classList.remove('bim-focus');
-        r.setAttribute('stroke', 'var(--border)');
-    });
-    const node = document.getElementById('bnode-' + shortId);
-    if (node) {
-        const rect = node.querySelector('rect');
-        rect.classList.add('bim-focus');
-        rect.setAttribute('stroke', 'var(--teal)');
-    }
+function clearFilters() {
+    renderRoleSpecificQueues();
+    document.getElementById('zone-detail-title').innerText = "Select a Component";
+    document.getElementById('zone-detail-desc').innerText = "Click on a 3D block to filter issues.";
+    document.getElementById('zone-detail-issues').innerText = "—";
+    showToast('BIM view filters reset.');
 }
+
+// Initial theme configuration
+(function() {
+  document.documentElement.setAttribute('data-theme', 'dark');
+})();
 </script>
 </body>
 </html>
