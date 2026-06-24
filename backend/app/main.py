@@ -1094,6 +1094,19 @@ def export_pdf(db: Session = Depends(get_db)):
         def load_pdf_img(name):
             if not name:
                 return None
+                
+            if name.startswith("http://") or name.startswith("https://"):
+                try:
+                    import requests
+                    from io import BytesIO
+                    res = requests.get(name, timeout=5)
+                    if res.status_code == 200:
+                        img_data = BytesIO(res.content)
+                        return Image(img_data, width=150, height=112)
+                except Exception as e:
+                    print("Failed to load remote PDF image", name, e)
+                return None
+                
             p = os.path.join(uploads_dir, name)
             if os.path.exists(p):
                 try:
