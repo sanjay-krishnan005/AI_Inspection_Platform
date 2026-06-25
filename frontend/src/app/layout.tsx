@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -14,9 +14,25 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"]
 });
 
+export const viewport: Viewport = {
+  themeColor: "#00BCD4",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   title: "AIInspect Pro - AI Construction & Workforce Management",
   description: "AI-powered real-time construction inspection, defect mapping, and contractor workforce dispatching.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "AIInspect Pro",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
