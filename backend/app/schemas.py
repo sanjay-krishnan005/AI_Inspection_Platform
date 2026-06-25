@@ -58,7 +58,7 @@ class IssueBase(BaseModel):
     team_rec: Optional[str] = None
 
 class IssueCreate(IssueBase):
-    author: Optional[str] = "Priya M. (Inspector)"
+    author: Optional[str] = "Inspector"
     assignee_id: Optional[int] = None
 
 class IssueReview(BaseModel):
@@ -66,7 +66,7 @@ class IssueReview(BaseModel):
     severity: str
     assignee_id: int
     deadline: str
-    manager_name: Optional[str] = "Sanjay V. (PM)"
+    manager_name: Optional[str] = "Manager"
 
 class IssueProgressUpdate(BaseModel):
     progress_pct: int

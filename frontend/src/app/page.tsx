@@ -15,7 +15,7 @@ const UPLOADS_BASE = process.env.NEXT_PUBLIC_API_BASE ? process.env.NEXT_PUBLIC_
 
 export default function DashboardPage() {
   const [activeRole, setActiveRole] = useState<'manager' | 'inspector' | 'worker' | 'simulator'>('manager');
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'capture' | 'analytics' | 'reports' | 'simulator'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'overview' | 'dashboard' | 'capture' | 'analytics' | 'reports' | 'simulator' | 'queue' | 'tasks' | 'log'>('overview');
   
   // Data States
   const [issues, setIssues] = useState<any[]>([]);
@@ -49,7 +49,7 @@ export default function DashboardPage() {
 
   // Field Capture Form States
   const [issueDesc, setIssueDesc] = useState('');
-  const [issueZone, setIssueZone] = useState('Zone B');
+  const [issueZone, setIssueZone] = useState('');
   const [issueSeverity, setIssueSeverity] = useState('LOW — Minor observation');
   const [issueTags, setIssueTags] = useState<string[]>(['Safety', 'MEP']);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -102,13 +102,132 @@ export default function DashboardPage() {
   // Toast
   const [toast, setToast] = useState<{ show: boolean; msg: string }>({ show: false, msg: '' });
 
+  // Auth State
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  
+  // Project State (Removed mock projects)
+  
+  // Login Form State
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('password123');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
+  // Registration Form State
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [regName, setRegName] = useState('');
+  const [regRole, setRegRole] = useState('inspector');
+  const [regTeam, setRegTeam] = useState('');
+  
   // Theme Toggle
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
+  // --- AUTH LOGIC ---
+  useEffect(() => {
+    const storedToken = localStorage.getItem('ai_inspect_token');
+    if (storedToken) {
+      verifyToken(storedToken);
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, []);
+
+  const verifyToken = async (storedToken: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${storedToken}` }
+      });
+      if (res.ok) {
+        const userData = await res.json();
+        setToken(storedToken);
+        setUser(userData);
+        setActiveRole(userData.role as any);
+        
+        // Auto-route based on role
+        if (userData.role === 'inspector') setCurrentTab('capture');
+        if (userData.role === 'worker') setCurrentTab('dashboard');
+        if (userData.role === 'manager') setCurrentTab('dashboard');
+        
+      } else {
+        localStorage.removeItem('ai_inspect_token');
+      }
+    } catch (err) {
+      console.error("Auth check failed", err);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    setLoginError('');
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('ai_inspect_token', data.access_token);
+        await verifyToken(data.access_token);
+      } else {
+        setLoginError(data.detail || 'Login failed');
+      }
+    } catch (err) {
+      setLoginError('Network error connecting to server');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    setLoginError('');
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name: regName,
+          email: loginEmail, 
+          password: loginPassword,
+          role: regRole,
+          team: regTeam
+        })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        // Auto-login after registration
+        await handleLogin(e);
+      } else {
+        setLoginError(data.detail || 'Registration failed');
+      }
+    } catch (err) {
+      setLoginError('Network error connecting to server');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('ai_inspect_token');
+    setToken(null);
+    setUser(null);
+  };
+
   // --- INITIAL DATA SYNC ---
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (token) {
+      loadDashboardData();
+    }
+  }, [token]);
 
   const loadDashboardData = async (isRefresh = false) => {
     try {
@@ -242,7 +361,9 @@ export default function DashboardPage() {
           tags: issueTags.join(','),
           image: finalFilename,
           solution_rec: aiData.recommendation,
-          team_rec: aiData.team_rec
+          team_rec: aiData.team_rec,
+          author: user?.name,
+          project_id: null
         })
       });
 
@@ -286,7 +407,7 @@ export default function DashboardPage() {
           severity: reviewSeverity,
           assignee_id: reviewAssignee,
           deadline: reviewDeadline,
-          manager_name: 'Sanjay V. (PM)'
+          manager_name: user?.name || 'Manager'
         })
       });
 
@@ -327,9 +448,9 @@ export default function DashboardPage() {
         }
       }
 
-      // If no custom image is selected, use fallback
+      // If no custom image is selected, use fallback remote placeholder
       if (!finalAfterFilename) {
-        finalAfterFilename = 'capture-2.jpg';
+        finalAfterFilename = 'https://images.unsplash.com/photo-1541888086225-ee8259f42c4b?q=80&w=640&auto=format&fit=crop';
       }
 
       const res = await fetch(`${API_BASE}/issues/${activeIssue.id}/progress`, {
@@ -339,7 +460,7 @@ export default function DashboardPage() {
           progress_pct: progressPct,
           status,
           comments: progressComments,
-          before_img: activeIssue.image || 'capture-1.jpg',
+          before_img: activeIssue.image || 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=640&auto=format&fit=crop',
           after_img: finalAfterFilename,
           worker_id: selectedWorkerId
         })
@@ -366,7 +487,7 @@ export default function DashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action,
-          manager_name: 'Sanjay V. (PM)'
+          manager_name: user?.name || 'Manager'
         })
       });
 
@@ -634,35 +755,191 @@ export default function DashboardPage() {
     return `${UPLOADS_BASE}/${filename}`;
   };
 
+  if (isCheckingAuth) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center min-h-screen bg-[var(--bg)] text-[var(--text1)]">
+        <RefreshCw className="w-8 h-8 animate-spin text-[var(--teal)] mb-4" />
+        <p className="font-semibold text-sm">Authenticating...</p>
+      </div>
+    );
+  }
+
+  if (!token) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center min-h-screen bg-[var(--bg)] p-4 relative overflow-hidden">
+        <div className="absolute w-[130%] h-[130%] -top-[15%] -left-[15%] bg-[radial-gradient(circle,var(--teal-mid)_0%,transparent_70%)] opacity-20 pointer-events-none" />
+        
+        <div className="card w-full max-w-md p-8 rounded-2xl bg-[var(--bg4)] border border-[var(--border)] shadow-xl relative z-10 flex flex-col items-center">
+          <div className="w-16 h-16 mb-4">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain rounded-full border-2 border-[var(--teal)]" />
+          </div>
+          <h1 className="font-display font-800 text-2xl mb-1 text-[var(--text1)]">
+            {isRegistering ? "Create Account" : "Welcome Back"}
+          </h1>
+          <p className="text-sm text-[var(--text3)] mb-8 text-center">
+            {isRegistering ? "Join AI Inspect Pro to get started." : "Login to your AI Inspect Pro dashboard."}
+          </p>
+          
+          <form onSubmit={isRegistering ? handleRegister : handleLogin} className="w-full space-y-4">
+            {isRegistering && (
+              <>
+                <div>
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Full Name</label>
+                  <input 
+                    type="text" 
+                    value={regName} 
+                    onChange={e => setRegName(e.target.value)} 
+                    className="field-input w-full py-3"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Role</label>
+                  <select 
+                    value={regRole} 
+                    onChange={e => setRegRole(e.target.value)} 
+                    className="field-input w-full py-3 bg-[var(--bg3)]"
+                  >
+                    <option value="inspector">Inspector</option>
+                    <option value="manager">Manager</option>
+                    <option value="worker">Contractor Worker</option>
+                  </select>
+                </div>
+                {regRole === 'worker' && (
+                  <div>
+                    <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Contracting Company & Trade</label>
+                    <input 
+                      type="text" 
+                      value={regTeam} 
+                      onChange={e => setRegTeam(e.target.value)} 
+                      className="field-input w-full py-3"
+                      placeholder="e.g. Acme Plumbing - MEP"
+                      required
+                    />
+                  </div>
+                )}
+                {regRole === 'manager' && (
+                  <div>
+                    <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Project Department / Title</label>
+                    <input 
+                      type="text" 
+                      value={regTeam} 
+                      onChange={e => setRegTeam(e.target.value)} 
+                      className="field-input w-full py-3"
+                      placeholder="e.g. Site Manager, Quality Assurance"
+                      required
+                    />
+                  </div>
+                )}
+                {regRole === 'inspector' && (
+                  <div>
+                    <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Inspection Specialty & Primary Zone</label>
+                    <input 
+                      type="text" 
+                      value={regTeam} 
+                      onChange={e => setRegTeam(e.target.value)} 
+                      className="field-input w-full py-3"
+                      placeholder="e.g. Structural QA - Tower A"
+                      required
+                    />
+                  </div>
+                )}
+              </>
+            )}
+            
+            <div>
+              <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Email</label>
+              <input 
+                type="email" 
+                value={loginEmail} 
+                onChange={e => setLoginEmail(e.target.value)} 
+                className="field-input w-full py-3"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Password</label>
+              <input 
+                type="password" 
+                value={loginPassword} 
+                onChange={e => setLoginPassword(e.target.value)} 
+                className="field-input w-full py-3"
+                required
+              />
+            </div>
+            
+            {loginError && <div className="text-xs text-[var(--red)] bg-red-500/10 border border-red-500/20 p-2 rounded">{loginError}</div>}
+            
+            <button 
+              type="submit" 
+              disabled={isLoggingIn}
+              className="w-full bg-[var(--teal)] text-white font-bold py-3.5 rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity mt-2 flex justify-center items-center gap-2 text-base"
+            >
+              {isLoggingIn ? <RefreshCw className="w-4 h-4 animate-spin" /> : null}
+              {isRegistering ? "Sign Up" : "Sign In"}
+            </button>
+            
+            <div className="text-center pt-2">
+              <button 
+                type="button" 
+                onClick={() => {
+                  setIsRegistering(!isRegistering);
+                  setLoginEmail('');
+                  setLoginPassword('');
+                  setLoginError('');
+                }}
+                className="text-xs text-[var(--teal)] font-semibold hover:underline"
+              >
+                {isRegistering ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
+    <>
     <div className="flex-1 flex flex-col pt-[var(--nav-h)] relative">
+      <datalist id="zones-list">
+        {Array.from(new Set(issues.map(i => i.zone))).filter(Boolean).map((zone, idx) => (
+          <option key={idx} value={zone} />
+        ))}
+      </datalist>
       
       {/* ── HEADER NAVIGATION ── */}
-      <nav className="flex items-center justify-between px-8 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-md fixed top-0 left-0 right-0 z-[200] h-[var(--nav-h)]">
+      <nav className="flex items-center justify-between px-4 md:px-8 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-md fixed top-0 left-0 right-0 z-[200] h-[var(--nav-h)]">
         <a href="#" className="flex items-center gap-3">
           <div className="relative w-10 h-10 flex-shrink-0">
             <div className="absolute w-[130%] h-[130%] -top-[15%] -left-[15%] bg-[radial-gradient(circle,var(--teal-mid)_0%,transparent_70%)] opacity-50 logo-halo-active" />
             <img src="/logo.png" alt="AIInspect Pro" className="w-full h-full object-contain rounded-full border-2 border-[var(--teal)] shadow-lg" />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col hidden sm:flex">
             <span className="font-display font-800 text-base leading-none tracking-tight">AI<span className="text-[var(--teal)]">Inspect</span> Pro</span>
             <span className="text-[10px] text-[var(--text3)] font-medium leading-none mt-0.5 tracking-wide">Construction Intelligence</span>
           </div>
         </a>
 
-        {/* Role switcher */}
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] uppercase font-bold text-[var(--text3)] tracking-widest hidden sm:block">Role:</span>
-          <select 
-            value={activeRole} 
-            onChange={(e) => handleRoleChange(e.target.value as any)}
-            className="text-sm font-semibold bg-[var(--bg3)] border border-[var(--border2)] text-[var(--text1)] rounded-lg px-4 py-2 focus:outline-none focus:border-[var(--teal)] focus:ring-2 focus:ring-[var(--teal-dim)] cursor-pointer"
+        {/* User Profile & Logout */}
+        <div className="flex items-center gap-4">
+          {/* Team / Workspace Display */}
+          {user?.team && (
+            <div className="text-xs sm:text-sm font-semibold bg-[var(--bg3)] border border-[var(--border2)] text-[var(--teal)] rounded-lg px-2 sm:px-3 py-1.5 max-w-[150px] sm:max-w-[200px] truncate">
+              {user.team}
+            </div>
+          )}
+
+          <div className="flex flex-col items-end text-right">
+            <span className="text-[10px] sm:text-xs font-bold text-[var(--text1)] leading-tight">{user?.name}</span>
+            <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--teal)] uppercase tracking-wider">{activeRole}</span>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="text-xs font-semibold bg-[var(--bg3)] border border-[var(--border2)] text-[var(--text1)] rounded-lg px-3 py-1.5 hover:bg-[var(--red)] border-transparent hover:text-white transition-colors cursor-pointer"
           >
-            <option value="manager">Project Manager</option>
-            <option value="inspector">Site Inspector</option>
-            <option value="worker">Contractor Team</option>
-            <option value="simulator">Unified Flow Hub</option>
-          </select>
+            Logout
+          </button>
         </div>
 
         <button 
@@ -677,38 +954,7 @@ export default function DashboardPage() {
         </button>
       </nav>
 
-      {/* ── HERO BANNER ── */}
-      <header className="hero flex flex-col items-center justify-center text-center px-4 relative overflow-hidden border-b border-[rgba(255,255,255,0.05)]">
-        <div className="hero-badge mb-5">
-          <span className="w-2 h-2 rounded-full bg-[var(--teal)] live-dot-blink" />
-          AIInspect Pro — Live Intelligence Platform
-        </div>
-        <h1 className="hero-title mb-4">
-          AI Construction Inspection &
-          <span className="block text-[var(--teal)]">Workforce Command</span>
-        </h1>
-        <p className="hero-subtitle mb-8 mx-auto">
-          Real-time AI defect detection, voice-to-text field logging, automated contractor dispatch, and live compliance audit trails — all in one platform.
-        </p>
-        <div className="flex flex-wrap justify-center gap-3 relative z-10">
-          <div className="hero-stat-pill">
-            <span className="hero-stat-num">{kpis.openCount + kpis.resolved + (kpis.criticalCount || 0)}</span>
-            Total Issues Tracked
-          </div>
-          <div className="hero-stat-pill">
-            <span className="hero-stat-num">{kpis.resolved}</span>
-            Resolved
-          </div>
-          <div className="hero-stat-pill">
-            <span style={{color: 'var(--red)', fontWeight: 800, fontSize: '14px', fontFamily: 'var(--font-outfit, sans-serif)'}}>{kpis.criticalCount || 0}</span>
-            Critical Active
-          </div>
-          <div className="hero-stat-pill">
-            <span className="hero-stat-num">{kpis.reworkRate}%</span>
-            Rework Rate
-          </div>
-        </div>
-      </header>
+      {/* ── HERO BANNER MOVED TO OVERVIEW TAB ── */}
 
       {/* ── CORE APP SECTION ── */}
       <section className="app-section px-4">
@@ -731,16 +977,20 @@ export default function DashboardPage() {
                 </span>
               </div>
 
-              <div className="flex gap-0 overflow-x-auto">
+              <div className="hidden sm:flex gap-0 overflow-x-auto whitespace-nowrap pb-2 no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <button onClick={() => setCurrentTab('overview')} className={`app-tab ${currentTab === 'overview' ? 'active' : ''}`}>
+                  <BarChart3 className="w-4 h-4" />
+                  Overview
+                </button>
                 {activeRole === 'manager' && (
                   <>
                     <button onClick={() => setCurrentTab('dashboard')} className={`app-tab ${currentTab === 'dashboard' ? 'active' : ''}`}>
                       <ClipboardList className="w-4 h-4" />
-                      Manager Dashboard
+                      Workflow Queue
                     </button>
                     <button onClick={() => setCurrentTab('analytics')} className={`app-tab ${currentTab === 'analytics' ? 'active' : ''}`}>
                       <BarChart3 className="w-4 h-4" />
-                      Contractor Performance
+                      Contractor Analytics
                     </button>
                     <button onClick={() => setCurrentTab('reports')} className={`app-tab ${currentTab === 'reports' ? 'active' : ''}`}>
                       <FileText className="w-4 h-4" />
@@ -757,20 +1007,146 @@ export default function DashboardPage() {
                 {activeRole === 'worker' && (
                   <button onClick={() => setCurrentTab('dashboard')} className={`app-tab ${currentTab === 'dashboard' ? 'active' : ''}`}>
                     <ClipboardList className="w-4 h-4" />
-                    Workorders & Daily Logs
-                  </button>
-                )}
-                {activeRole === 'simulator' && (
-                  <button onClick={() => setCurrentTab('simulator')} className={`app-tab ${currentTab === 'simulator' ? 'active' : ''}`}>
-                    <RefreshCw className="w-4 h-4" />
-                    Unified Simulator
+                    My Tasks
                   </button>
                 )}
               </div>
             </div>
 
+            {/* ── TAB CONTENT: UNIFIED OVERVIEW ── */}
+            <div className="panel anim-fade-up" style={{ display: currentTab === 'overview' ? 'block' : 'none', padding: '28px' }}>
+              <div className="flex flex-col items-center justify-center text-center relative overflow-hidden mb-8">
+                <div className="hero-badge mb-5">
+                  <span className="w-2 h-2 rounded-full bg-[var(--teal)] live-dot-blink" />
+                  AIInspect Pro — Live Intelligence Platform
+                </div>
+                <h1 className="hero-title mb-4">
+                  AI Construction Inspection &
+                  <span className="block text-[var(--teal)]">Workforce Command</span>
+                </h1>
+                <p className="hero-subtitle mb-8 mx-auto max-w-2xl">
+                  Real-time AI defect detection, voice-to-text field logging, automated contractor dispatch, and live compliance audit trails — all in one platform.
+                </p>
+                <div className="grid grid-cols-2 md:flex flex-wrap justify-center gap-3 relative z-10 w-full max-w-2xl mx-auto">
+                  <div className="hero-stat-pill">
+                    <span className="hero-stat-num">{kpis.openCount + kpis.resolved + (kpis.criticalCount || 0)}</span>
+                    Total Issues Tracked
+                  </div>
+                  <div className="hero-stat-pill">
+                    <span className="hero-stat-num">{kpis.resolved}</span>
+                    Resolved
+                  </div>
+                  <div className="hero-stat-pill">
+                    <span style={{color: 'var(--red)', fontWeight: 800, fontSize: '14px', fontFamily: 'var(--font-outfit, sans-serif)'}}>{kpis.criticalCount || 0}</span>
+                    Critical Active
+                  </div>
+                  <div className="hero-stat-pill">
+                    <span className="hero-stat-num">{kpis.reworkRate}%</span>
+                    Rework Rate
+                  </div>
+                </div>
+              </div>
+                  {/* KPI Row */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="kpi-glass" style={{'--kpi-accent': 'var(--red)'} as any}>
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="kpi-label">Active Risks</div>
+                        </div>
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-red-500/10 text-[var(--red)] flex-shrink-0">
+                          <ShieldAlert className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="kpi-num text-[var(--red)]">{kpis.openCount}</div>
+                      <div className="kpi-sub">Pending review or action</div>
+                    </div>
+
+                    <div className="kpi-glass" style={{'--kpi-accent': 'var(--green)'} as any}>
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="kpi-label">Resolved</div>
+                        </div>
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-emerald-500/10 text-[var(--green)] flex-shrink-0">
+                          <CheckCircle className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="kpi-num text-[var(--green)]">{kpis.resolved}</div>
+                      <div className="kpi-sub">Audited &amp; closed</div>
+                    </div>
+
+                    <div className="kpi-glass" style={{'--kpi-accent': 'var(--amber)'} as any}>
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="kpi-label">Rework Rate</div>
+                        </div>
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-amber-500/10 text-[var(--amber)] flex-shrink-0">
+                          <TrendingDown className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="kpi-num text-[var(--amber)]">{kpis.reworkRate}%</div>
+                      <div className={`kpi-sub font-semibold ${kpis.reworkGood ? 'text-[var(--green)]' : 'text-[var(--red)]'}`}>{kpis.reworkTrend || 'Stable'}</div>
+                    </div>
+
+                    <div className="kpi-glass" style={{'--kpi-accent': 'var(--blue)'} as any}>
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="kpi-label">Report Lag</div>
+                        </div>
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-blue-500/10 text-[var(--blue)] flex-shrink-0">
+                          <Clock className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="kpi-num text-[var(--blue)]">{kpis.reportLag}h</div>
+                      <div className={`kpi-sub font-semibold ${kpis.lagGood ? 'text-[var(--green)]' : 'text-[var(--red)]'}`}>{kpis.lagTrend || 'On target'}</div>
+                    </div>
+                  </div>
+
+                  {/* Heatmap concentration representer */}
+                  <div className="card p-6">
+                    <div className="flex items-center justify-between mb-5">
+                      <div>
+                        <div className="font-bold text-base text-[var(--text1)]">Site Defect Heatmap</div>
+                        <div className="text-sm text-[var(--text3)] mt-0.5">Click a zone to filter the issue queue</div>
+                      </div>
+                      <div className="badge badge-teal">Live</div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                      {issues.filter(i => i.status !== 'resolved').length === 0 ? (
+                        <div className="col-span-full text-center text-xs text-[var(--text3)] py-8 border border-dashed border-[var(--border2)] rounded-xl">
+                          No active defects found across any zones.
+                        </div>
+                      ) : (
+                        Array.from(new Set(issues.filter(i => i.status !== 'resolved').map(i => i.zone))).map((z) => {
+                          const count = issues.filter(i => i.zone === z && i.status !== 'resolved').length;
+                        const isSelected = selectedZone === z;
+                        return (
+                          <div 
+                            key={z} 
+                            onClick={() => setSelectedZone(selectedZone === z ? null : z)}
+                            className={`p-4 rounded-xl text-center border cursor-pointer transition-all hover:-translate-y-1 hover:shadow-md ${
+                              isSelected ? 'ring-2 ring-[var(--teal)] border-[var(--teal)] bg-[var(--teal-dim)]' :
+                              count === 0 ? 'border-[var(--border)] bg-[var(--bg3)] hover:border-[var(--border2)]' :
+                              count === 1 ? 'border-amber-500/40 bg-amber-500/10' :
+                              'border-red-500/40 bg-red-500/10'
+                            }`}
+                          >
+                            <div className={`text-2xl font-black font-display ${
+                              isSelected ? 'text-[var(--teal)]' :
+                              count === 0 ? 'text-[var(--text3)]' :
+                              count === 1 ? 'text-[var(--amber)]' :
+                              'text-[var(--red)]'
+                            }`}>{count}</div>
+                            <div className="text-[11px] uppercase font-bold text-[var(--text3)] mt-1.5 tracking-wide">{z}</div>
+                          </div>
+                        );
+                        })
+                      )}
+                    </div>
+                  </div>
+            </div>
+
             {/* ── TAB CONTENT: UNIFIED SIMULATOR HUB ── */}
-            <div className="panel" style={{ display: currentTab === 'simulator' ? 'block' : 'none', padding: '28px' }}>
+            <div className="panel anim-fade-up" style={{ display: currentTab === 'simulator' ? 'block' : 'none', padding: '28px' }}>
               <div className="mb-6 p-4 rounded-xl bg-[var(--bg4)] border border-[var(--teal-mid)] flex items-start justify-between gap-3 text-xs leading-relaxed">
                 <div className="flex items-start gap-3">
                   <span className="text-base text-[var(--teal)]">🚀</span>
@@ -790,7 +1166,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 
                 {/* Left Side: Defect Queue (width 2/5) */}
-                <div className="lg:col-span-2 space-y-4">
+                <div className={`lg:col-span-2 space-y-4 ${(activeIssue || simCreateMode) ? 'hidden lg:block' : 'block'}`}>
                   <div className="card bg-[var(--bg4)] border border-[var(--border)] rounded-2xl p-5 shadow-md">
                     <h3 className="font-bold text-xs uppercase tracking-wider text-[var(--text3)] mb-4">Inspection Defect Queue</h3>
                     <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
@@ -832,7 +1208,18 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Right Side: Active Workspace Detail & Actions (width 3/5) */}
-                <div className="lg:col-span-3 space-y-6">
+                <div className={`lg:col-span-3 space-y-6 ${(!activeIssue && !simCreateMode) ? 'hidden lg:block' : 'block'}`}>
+                  
+                  {/* Mobile Back Button */}
+                  <div className="lg:hidden mb-2 flex items-center">
+                    <button 
+                      onClick={() => { setActiveIssue(null); setSimCreateMode(false); }}
+                      className="px-4 py-2 bg-[var(--bg3)] rounded-lg text-xs font-bold text-[var(--text2)] flex items-center gap-2 shadow-sm border border-[var(--border)] active:scale-95 transition-transform"
+                    >
+                      &larr; Back to Queue
+                    </button>
+                  </div>
+
                   {simCreateMode ? (
                     /* 1. Simulator Create Defect Panel */
                     <div className="card bg-[var(--bg4)] border border-[var(--border)] rounded-2xl p-6 shadow-md">
@@ -858,17 +1245,18 @@ export default function DashboardPage() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Location Zone</label>
-                            <select 
+                            <input 
+                              type="text"
+                              list="zones-list"
                               value={issueZone} 
                               onChange={(e) => setIssueZone(e.target.value)}
-                              className="field-select w-full text-xs"
-                            >
-                              <option>Zone A</option><option>Zone B</option><option>Zone C</option>
-                              <option>Zone D</option><option>Zone E</option><option>Zone F</option>
-                            </select>
+                              className="field-input w-full text-xs"
+                              placeholder="e.g. Ground Floor, Lobby"
+                              required
+                            />
                           </div>
                           <div>
                             <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Severity Assessment</label>
@@ -904,7 +1292,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Defect Image</label>
                             <div className="h-28 bg-[var(--bg3)] rounded-lg flex flex-col items-center justify-center border border-[var(--border)] relative overflow-hidden text-center">
@@ -969,7 +1357,7 @@ export default function DashboardPage() {
                           /* PM Dispatch Inline Form */
                           <div className="space-y-4">
                             <p className="text-xs text-[var(--text2)]">As the Project Manager, you must assign a responsible contractor team and set a task completion deadline.</p>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div>
                                 <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Contractor Team</label>
                                 <select 
@@ -1005,7 +1393,7 @@ export default function DashboardPage() {
                           /* Contractor Progress Inline Form */
                           <div className="space-y-4">
                             <p className="text-xs text-[var(--text2)]">As the Assigned Contractor (<strong>{activeIssue.assignee_team || 'Civil Team'}</strong>), log progress and upload verification photos.</p>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div>
                                 <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Progress Completed: {progressPct}%</label>
                                 <input 
@@ -1029,7 +1417,7 @@ export default function DashboardPage() {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div>
                                 <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Before Photo (Visual Reference)</label>
                                 <div className="h-28 bg-[var(--bg3)] rounded-lg flex items-center justify-center border border-[var(--border)] overflow-hidden">
@@ -1077,7 +1465,7 @@ export default function DashboardPage() {
                           <div className="space-y-4">
                             <p className="text-xs text-[var(--text2)]">As the Project Manager, perform the final audit on contractor repairs. Inspect the before and after photos below.</p>
                             
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div>
                                 <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Before Picture (Defect)</span>
                                 <div className="h-28 bg-[var(--bg3)] rounded-lg flex items-center justify-center border border-[var(--border)] overflow-hidden">
@@ -1163,7 +1551,7 @@ export default function DashboardPage() {
             </div>
 
             {/* ── TAB CONTENT: DASHBOARD (MANAGER) ── */}
-            <div className="panel" style={{ display: currentTab === 'dashboard' && activeRole === 'manager' ? 'block' : 'none', padding: '28px' }}>
+            <div className="panel anim-fade-up" style={{ display: currentTab === 'dashboard' && activeRole === 'manager' ? 'block' : 'none', padding: '28px' }}>
               <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/8 border border-amber-500/20 border-l-4 border-l-[var(--amber)] mb-6">
                 <span className="text-xl">⚠️</span>
                 <div>
@@ -1172,99 +1560,8 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="dashboard-wrapper">
-                <div className="dash-main space-y-6">
-                  {/* KPI Row */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="kpi-glass" style={{'--kpi-accent': 'var(--red)'} as any}>
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="kpi-label">Active Risks</div>
-                        </div>
-                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-red-500/10 text-[var(--red)] flex-shrink-0">
-                          <ShieldAlert className="w-5 h-5" />
-                        </div>
-                      </div>
-                      <div className="kpi-num text-[var(--red)]">{kpis.openCount}</div>
-                      <div className="kpi-sub">Pending review or action</div>
-                    </div>
-
-                    <div className="kpi-glass" style={{'--kpi-accent': 'var(--green)'} as any}>
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="kpi-label">Resolved</div>
-                        </div>
-                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-emerald-500/10 text-[var(--green)] flex-shrink-0">
-                          <CheckCircle className="w-5 h-5" />
-                        </div>
-                      </div>
-                      <div className="kpi-num text-[var(--green)]">{kpis.resolved}</div>
-                      <div className="kpi-sub">Audited &amp; closed</div>
-                    </div>
-
-                    <div className="kpi-glass" style={{'--kpi-accent': 'var(--amber)'} as any}>
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="kpi-label">Rework Rate</div>
-                        </div>
-                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-amber-500/10 text-[var(--amber)] flex-shrink-0">
-                          <TrendingDown className="w-5 h-5" />
-                        </div>
-                      </div>
-                      <div className="kpi-num text-[var(--amber)]">{kpis.reworkRate}%</div>
-                      <div className={`kpi-sub font-semibold ${kpis.reworkGood ? 'text-[var(--green)]' : 'text-[var(--red)]'}`}>{kpis.reworkTrend || 'Stable'}</div>
-                    </div>
-
-                    <div className="kpi-glass" style={{'--kpi-accent': 'var(--blue)'} as any}>
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="kpi-label">Report Lag</div>
-                        </div>
-                        <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-blue-500/10 text-[var(--blue)] flex-shrink-0">
-                          <Clock className="w-5 h-5" />
-                        </div>
-                      </div>
-                      <div className="kpi-num text-[var(--blue)]">{kpis.reportLag}h</div>
-                      <div className={`kpi-sub font-semibold ${kpis.lagGood ? 'text-[var(--green)]' : 'text-[var(--red)]'}`}>{kpis.lagTrend || 'On target'}</div>
-                    </div>
-                  </div>
-
-                  {/* Heatmap concentration representer */}
-                  <div className="card p-6">
-                    <div className="flex items-center justify-between mb-5">
-                      <div>
-                        <div className="font-bold text-base text-[var(--text1)]">Site Defect Heatmap</div>
-                        <div className="text-sm text-[var(--text3)] mt-0.5">Click a zone to filter the issue queue</div>
-                      </div>
-                      <div className="badge badge-teal">Live</div>
-                    </div>
-                    <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                      {['Zone A', 'Zone B', 'Zone C', 'Zone D', 'Zone E', 'Zone F'].map((z) => {
-                        const count = issues.filter(i => i.zone === z && i.status !== 'resolved').length;
-                        const isSelected = selectedZone === z;
-                        return (
-                          <div 
-                            key={z} 
-                            onClick={() => setSelectedZone(selectedZone === z ? null : z)}
-                            className={`p-4 rounded-xl text-center border cursor-pointer transition-all hover:-translate-y-1 hover:shadow-md ${
-                              isSelected ? 'ring-2 ring-[var(--teal)] border-[var(--teal)] bg-[var(--teal-dim)]' :
-                              count === 0 ? 'border-[var(--border)] bg-[var(--bg3)] hover:border-[var(--border2)]' :
-                              count === 1 ? 'border-amber-500/40 bg-amber-500/10' :
-                              'border-red-500/40 bg-red-500/10'
-                            }`}
-                          >
-                            <div className={`text-2xl font-black font-display ${
-                              isSelected ? 'text-[var(--teal)]' :
-                              count === 0 ? 'text-[var(--text3)]' :
-                              count === 1 ? 'text-[var(--amber)]' :
-                              'text-[var(--red)]'
-                            }`}>{count}</div>
-                            <div className="text-[11px] uppercase font-bold text-[var(--text3)] mt-1.5 tracking-wide">{z}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
 
                   {/* Active Manager review tables */}
                   <div className="card p-6">
@@ -1297,9 +1594,9 @@ export default function DashboardPage() {
                             <div 
                               key={issue.id} 
                               onClick={() => setActiveIssue(issue)}
-                              className={`issue-card ${activeIssue?.id === issue.id ? 'active' : ''}`}
+                              className={`issue-card flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 ${activeIssue?.id === issue.id ? 'active' : ''}`}
                             >
-                              <div className="flex-1 min-w-0">
+                              <div className="flex-1 min-w-0 w-full">
                                 <div className="flex items-center gap-2 mb-2">
                                   <span className="badge badge-red">New Defect</span>
                                   <span className="text-sm text-[var(--text3)]">{issue.zone} · {issue.author}</span>
@@ -1307,9 +1604,9 @@ export default function DashboardPage() {
                                 <div className="text-sm text-[var(--text2)] line-clamp-2" dangerouslySetInnerHTML={{ __html: issue.desc }} />
                               </div>
                               {issue.image && (
-                                <img src={getImageUrl(issue.image) || ''} className="w-16 h-16 object-cover rounded-xl border border-[var(--border2)] shrink-0" alt="thumbnail" />
+                                <img src={getImageUrl(issue.image) || ''} className="w-full h-32 sm:w-16 sm:h-16 object-cover rounded-xl border border-[var(--border2)] shrink-0" alt="thumbnail" />
                               )}
-                              <button onClick={(e) => { e.stopPropagation(); openReviewModal(issue); }} className="action-btn resolve-btn hover:border-emerald-500 hover:text-emerald-500 shrink-0">
+                              <button onClick={(e) => { e.stopPropagation(); openReviewModal(issue); }} className="action-btn resolve-btn w-full sm:w-auto hover:border-emerald-500 hover:text-emerald-500 shrink-0">
                                 Review &amp; Dispatch
                               </button>
                             </div>
@@ -1325,9 +1622,9 @@ export default function DashboardPage() {
                             <div 
                               key={issue.id} 
                               onClick={() => setActiveIssue(issue)}
-                              className={`issue-card ${activeIssue?.id === issue.id ? 'active' : ''}`}
+                              className={`issue-card flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 ${activeIssue?.id === issue.id ? 'active' : ''}`}
                             >
-                              <div className="flex-1 min-w-0">
+                              <div className="flex-1 min-w-0 w-full">
                                 <div className="flex items-center gap-2 mb-2">
                                   <span className="badge badge-green">Completed</span>
                                   <span className="text-sm text-[var(--text3)]">{issue.zone} · {issue.assignee_name}</span>
@@ -1335,9 +1632,9 @@ export default function DashboardPage() {
                                 <div className="text-sm text-[var(--text2)] line-clamp-2" dangerouslySetInnerHTML={{ __html: issue.desc }} />
                               </div>
                               {issue.image && (
-                                <img src={getImageUrl(issue.image) || ''} className="w-16 h-16 object-cover rounded-xl border border-[var(--border2)] shrink-0" alt="thumbnail" />
+                                <img src={getImageUrl(issue.image) || ''} className="w-full h-32 sm:w-16 sm:h-16 object-cover rounded-xl border border-[var(--border2)] shrink-0" alt="thumbnail" />
                               )}
-                              <button onClick={(e) => { e.stopPropagation(); openVerificationModal(issue); }} className="action-btn resolve-btn hover:border-emerald-500 hover:text-emerald-500 shrink-0">
+                              <button onClick={(e) => { e.stopPropagation(); openVerificationModal(issue); }} className="action-btn resolve-btn w-full sm:w-auto hover:border-emerald-500 hover:text-emerald-500 shrink-0">
                                 Verify Work
                               </button>
                             </div>
@@ -1352,9 +1649,9 @@ export default function DashboardPage() {
                           <div 
                             key={issue.id} 
                             onClick={() => setActiveIssue(issue)}
-                            className={`issue-card ${activeIssue?.id === issue.id ? 'active' : ''}`}
+                            className={`issue-card flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 ${activeIssue?.id === issue.id ? 'active' : ''}`}
                           >
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 w-full">
                               <div className="flex items-center gap-2 mb-2">
                                 <span className={`badge ${issue.sevClass === 'high' || issue.sevClass === 'critical' ? 'badge-red' : 'badge-amber'}`}>{issue.sevLabel}</span>
                                 <span className="text-sm text-[var(--text3)]">{issue.zone} · Due: {issue.deadline || 'Pending'}</span>
@@ -1365,7 +1662,7 @@ export default function DashboardPage() {
                               </div>
                             </div>
                             {issue.image && (
-                              <img src={getImageUrl(issue.image) || ''} className="w-16 h-16 object-cover rounded-xl border border-[var(--border2)] shrink-0" alt="thumbnail" />
+                              <img src={getImageUrl(issue.image) || ''} className="w-full h-32 sm:w-16 sm:h-16 object-cover rounded-xl border border-[var(--border2)] shrink-0" alt="thumbnail" />
                             )}
                           </div>
                         ))}
@@ -1577,7 +1874,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* PM Right sidebar */}
-                <div className="dash-side space-y-6">
+                <div className="lg:col-span-1 space-y-6">
                   <div className="card bg-[var(--bg4)] border border-[var(--border)] rounded-2xl p-6 text-center shadow-md">
                     <div className="card-title text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] mb-4">AI Project Delay Gauge</div>
                     <div className="relative inline-flex items-center justify-center my-4">
@@ -1626,7 +1923,7 @@ export default function DashboardPage() {
             </div>
 
             {/* ── TAB CONTENT: WORKER CONTRACTOR WORKSPACE ── */}
-            <div className="panel" style={{ display: currentTab === 'dashboard' && activeRole === 'worker' ? 'block' : 'none', padding: '28px' }}>
+            <div className="panel anim-fade-up" style={{ display: currentTab === 'dashboard' && activeRole === 'worker' ? 'block' : 'none', padding: '28px' }}>
               {/* Contractor Workspace Guide */}
               <div className="mb-6 p-4 rounded-xl bg-[var(--bg4)] border border-[var(--teal-mid)] flex items-start gap-3 leading-relaxed">
                 <span className="text-lg text-[var(--teal)]">💡</span>
@@ -1641,13 +1938,13 @@ export default function DashboardPage() {
                 {/* Contractor assignments list left */}
                 <div className="md:col-span-2 space-y-6">
                   <div className="card bg-[var(--bg4)] border border-[var(--border)] rounded-2xl p-6 shadow-md">
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)]">Viewing Tasks for:</span>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] whitespace-nowrap">Viewing Tasks for:</span>
                         <select 
                           value={selectedWorkerId}
                           onChange={(e) => setSelectedWorkerId(parseInt(e.target.value, 10))}
-                          className="text-xs bg-[var(--bg3)] border border-[var(--border2)] text-[var(--text1)] rounded-md px-3 py-1 focus:outline-none"
+                          className="text-xs bg-[var(--bg3)] border border-[var(--border2)] text-[var(--text1)] rounded-md px-3 py-2 sm:py-1 focus:outline-none w-full sm:w-auto"
                         >
                           {workers.map(w => <option key={w.id} value={w.id}>{w.name} ({w.team})</option>)}
                         </select>
@@ -1660,9 +1957,9 @@ export default function DashboardPage() {
                         <div 
                           key={issue.id} 
                           onClick={() => setActiveIssue(issue)}
-                          className={`p-4 rounded-xl bg-[var(--bg2)] border transition-all cursor-pointer hover:border-[var(--teal)] flex justify-between items-center gap-4 ${activeIssue?.id === issue.id ? 'border-[var(--teal)]' : 'border-[var(--border)]'}`}
+                          className={`p-4 rounded-xl bg-[var(--bg2)] border transition-all cursor-pointer hover:border-[var(--teal)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${activeIssue?.id === issue.id ? 'border-[var(--teal)]' : 'border-[var(--border)]'}`}
                         >
-                        <div className="flex-1">
+                        <div className="flex-1 w-full">
                             <div className="flex items-center gap-2 mb-2">
                               <span className={`badge ${issue.sevClass === 'high' ? 'badge-red' : 'badge-amber'}`}>{issue.sevLabel}</span>
                               <span className="text-sm text-[var(--text3)]">{issue.zone} · {issue.category} · Due: <strong className="text-[var(--red)]">{issue.deadline}</strong></span>
@@ -1674,7 +1971,7 @@ export default function DashboardPage() {
                                 <img 
                                   src={getImageUrl(issue.image) || ''} 
                                   alt="Defect" 
-                                  className="rounded-lg max-h-32 object-cover border border-[var(--border2)]"
+                                  className="rounded-lg w-full sm:max-h-32 sm:w-auto object-cover border border-[var(--border2)]"
                                 />
                               </div>
                             )}
@@ -1684,7 +1981,7 @@ export default function DashboardPage() {
                           </div>
                           <button 
                             onClick={(e) => { e.stopPropagation(); openWorkerProgressModal(issue); }} 
-                            className="action-btn resolve-btn hover:border-emerald-500 hover:text-emerald-500"
+                            className="action-btn resolve-btn w-full sm:w-auto hover:border-emerald-500 hover:text-emerald-500"
                           >
                             Update Progress
                           </button>
@@ -1929,7 +2226,7 @@ export default function DashboardPage() {
             </div>
 
             {/* ── TAB CONTENT: FIELD CAPTURE (INSPECTORS) ── */}
-            <div className="panel" style={{ display: currentTab === 'capture' ? 'block' : 'none', padding: '28px' }}>
+            <div className="panel anim-fade-up" style={{ display: currentTab === 'capture' ? 'block' : 'none', padding: '28px' }}>
               {/* Site Inspector Guide */}
               <div className="mb-6 p-4 rounded-xl bg-[var(--bg4)] border border-[var(--teal-mid)] flex items-start gap-3 leading-relaxed">
                 <span className="text-lg text-[var(--teal)]">💡</span>
@@ -2045,14 +2342,15 @@ export default function DashboardPage() {
 
                     <div>
                       <label className="text-xs font-bold uppercase tracking-wide text-[var(--text3)] block mb-2">Structural Zone</label>
-                      <select 
+                      <input 
+                        type="text"
+                        list="zones-list"
                         value={issueZone} 
                         onChange={(e) => setIssueZone(e.target.value)}
-                        className="field-select w-full"
-                      >
-                        <option>Zone A</option><option>Zone B</option><option>Zone C</option>
-                        <option>Zone D</option><option>Zone E</option><option>Zone F</option>
-                      </select>
+                        className="field-input w-full"
+                        placeholder="e.g. Ground Floor, Lobby"
+                        required
+                      />
                     </div>
 
                     <div>
@@ -2100,44 +2398,37 @@ export default function DashboardPage() {
             {/* BIM View decommissioned. Defect tracking is managed via visual timelines. */}
 
             {/* ── TAB CONTENT: CONTRACTOR ANALYTICS ── */}
-            <div className="panel" style={{ display: currentTab === 'analytics' ? 'block' : 'none', padding: '28px' }}>
+            <div className="panel anim-fade-up" style={{ display: currentTab === 'analytics' ? 'block' : 'none', padding: '28px' }}>
               <div className="space-y-6">
                 
                 {/* Contractor metrics table */}
                 <div className="card bg-[var(--bg4)] border border-[var(--border)] rounded-2xl p-6 shadow-md">
                   <div className="card-title text-xs uppercase font-bold tracking-wider text-[var(--text3)] mb-4">Contractor Performance Dashboard</div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm border-collapse">
-                      <thead>
-                        <tr className="border-b border-[var(--border2)] text-[var(--text3)]">
-                          <th className="py-3 px-2">Contractor / Team</th>
-                          <th className="py-3 px-2">Assigned Tasks</th>
-                          <th className="py-3 px-2">Resolved Tasks</th>
-                          <th className="py-3 px-2">Rework Logs</th>
-                          <th className="py-3 px-2">Completion Rate</th>
-                          <th className="py-3 px-2">Avg. Close Time</th>
-                          <th className="py-3 px-2">Quality Score</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {workers.map(w => {
-                          const assigned = issues.filter(i => i.assignee_id === w.id).length;
-                          const resolved = issues.filter(i => i.assignee_id === w.id && i.status === 'resolved').length;
-                          const completion = assigned > 0 ? Math.round((resolved / assigned) * 100) : 100;
-                          return (
-                            <tr key={w.id} className="border-b border-[var(--border)] text-[var(--text2)] font-medium">
-                              <td className="py-4 px-2 font-bold">{w.name}</td>
-                              <td className="py-4 px-2">{assigned}</td>
-                              <td className="py-4 px-2">{resolved}</td>
-                              <td className="py-4 px-2">0</td>
-                              <td className="py-4 px-2 text-[var(--teal)] font-bold">{completion}%</td>
-                              <td className="py-4 px-2">24h</td>
-                              <td className="py-4 px-2 text-[var(--green)] font-bold">100%</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {workers.map(w => {
+                      const assigned = issues.filter(i => i.assignee_id === w.id).length;
+                      const resolved = issues.filter(i => i.assignee_id === w.id && i.status === 'resolved').length;
+                      const completion = assigned > 0 ? Math.round((resolved / assigned) * 100) : 100;
+                      return (
+                        <div key={w.id} className="p-4 rounded-xl border border-[var(--border)] bg-[var(--bg2)] flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="font-bold text-[var(--text1)] flex justify-between items-center">
+                            <span>{w.name}</span>
+                            <span className="text-[10px] bg-[var(--bg3)] px-2 py-1 rounded text-[var(--text3)]">Team</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-[var(--text3)] font-medium">Tasks: {resolved}/{assigned}</span>
+                            <span className="text-[var(--teal)] font-bold">{completion}% Done</span>
+                          </div>
+                          <div className="w-full bg-[var(--bg3)] h-2 rounded-full overflow-hidden">
+                            <div className="bg-[var(--teal)] h-full transition-all duration-500" style={{ width: `${completion}%` }} />
+                          </div>
+                          <div className="flex justify-between items-center text-[10px] uppercase font-bold mt-1">
+                            <span className="text-[var(--text3)]">Avg. Close: 24h</span>
+                            <span className="text-[var(--green)]">100% Quality Score</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -2167,7 +2458,7 @@ export default function DashboardPage() {
             </div>
 
             {/* ── TAB CONTENT: REPORTS ── */}
-            <div className="panel" style={{ display: currentTab === 'reports' ? 'block' : 'none', padding: '28px' }}>
+            <div className="panel anim-fade-up" style={{ display: currentTab === 'reports' ? 'block' : 'none', padding: '28px' }}>
               <div className="reports-layout">
                 <div className="space-y-6">
                   
@@ -2318,7 +2609,7 @@ export default function DashboardPage() {
                   className="field-input w-full"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Before Photo (Defect)</label>
                   <div className="h-28 bg-[var(--bg3)] rounded-lg flex items-center justify-center border border-[var(--border)] overflow-hidden">
@@ -2368,7 +2659,7 @@ export default function DashboardPage() {
                 <label className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Issue Details</label>
                 <div className="p-4 bg-[var(--bg3)] rounded-xl text-[14px] leading-relaxed text-[var(--text2)] border border-[var(--border)]" dangerouslySetInnerHTML={{ __html: activeIssue.desc }} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--text3)] block mb-1">Before Picture (Defect)</span>
                   <div className="h-28 bg-[var(--bg3)] rounded-lg flex items-center justify-center border border-[var(--border)] overflow-hidden">
@@ -2463,5 +2754,61 @@ export default function DashboardPage() {
       </div>
 
     </div>
+    
+    {/* ── MOBILE BOTTOM NAVIGATION ── */}
+    <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[var(--nav-bg)] backdrop-blur-md border-t border-[var(--border)] z-[200] flex justify-around items-center h-16 pb-safe px-2">
+      <button 
+        onClick={() => setCurrentTab('overview')} 
+        className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentTab === 'overview' ? 'text-[var(--teal)]' : 'text-[var(--text3)]'}`}
+      >
+        <BarChart3 className="w-5 h-5" />
+        <span className="text-[10px] font-semibold">Overview</span>
+      </button>
+
+      {(activeRole === 'manager' || activeRole === 'worker') && (
+        <button 
+          onClick={() => setCurrentTab('dashboard')} 
+          className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentTab === 'dashboard' ? 'text-[var(--teal)]' : 'text-[var(--text3)]'}`}
+        >
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center -mt-4 border-4 border-[var(--bg)] ${currentTab === 'dashboard' ? 'bg-[var(--teal)] text-white shadow-lg shadow-teal-500/30' : 'bg-[var(--bg3)] text-[var(--text2)]'}`}>
+            <ClipboardList className="w-5 h-5" />
+          </div>
+          <span className="text-[10px] font-semibold">{activeRole === 'manager' ? 'Queue' : 'Tasks'}</span>
+        </button>
+      )}
+      
+      {activeRole === 'inspector' && (
+        <button 
+          onClick={() => setCurrentTab('capture')} 
+          className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentTab === 'capture' ? 'text-[var(--teal)]' : 'text-[var(--text3)]'}`}
+        >
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center -mt-4 border-4 border-[var(--bg)] ${currentTab === 'capture' ? 'bg-[var(--teal)] text-white shadow-lg shadow-teal-500/30' : 'bg-[var(--bg3)] text-[var(--text2)]'}`}>
+            <Camera className="w-5 h-5" />
+          </div>
+          <span className="text-[10px] font-semibold">Capture</span>
+        </button>
+      )}
+
+      {activeRole === 'manager' && (
+        <button 
+          onClick={() => setCurrentTab('analytics')} 
+          className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentTab === 'analytics' ? 'text-[var(--teal)]' : 'text-[var(--text3)]'}`}
+        >
+          <Users className="w-5 h-5" />
+          <span className="text-[10px] font-semibold">Stats</span>
+        </button>
+      )}
+      
+      {activeRole === 'manager' && (
+        <button 
+          onClick={() => setCurrentTab('reports')} 
+          className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentTab === 'reports' ? 'text-[var(--teal)]' : 'text-[var(--text3)]'}`}
+        >
+          <FileText className="w-5 h-5" />
+          <span className="text-[10px] font-semibold">Reports</span>
+        </button>
+      )}
+    </div>
+    </>
   );
 }

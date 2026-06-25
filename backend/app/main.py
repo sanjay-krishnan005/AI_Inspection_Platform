@@ -35,9 +35,14 @@ app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     import json
+    
+    body_content = exc.body
+    if isinstance(body_content, bytes):
+        body_content = body_content.decode('utf-8', errors='replace')
+        
     error_data = {
         "errors": exc.errors(),
-        "body": exc.body
+        "body": body_content
     }
     try:
         with open("validation_error.log", "w") as f:
@@ -50,7 +55,7 @@ async def validation_exception_handler(request, exc):
     print("--------------------------------\n")
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": exc.errors(), "body": exc.body}
+        content={"detail": exc.errors(), "body": body_content}
     )
 
 
@@ -68,60 +73,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login
 # Seeding database on startup if empty
 @app.on_event("startup")
 def db_seed():
-    db = next(get_db())
-    try:
-        user_count = db.query(User).count()
-        if user_count == 0:
-            print("Seeding database with mock data...")
-            
-            # Projects
-            proj1 = Project(name="Signature Bridge Project", location="Sector-4, River Bed")
-            proj2 = Project(name="East Coast Highway Overpass", location="National Highway 10")
-            db.add_all([proj1, proj2])
-            db.commit()
-            
-            # Locations
-            locs = [
-                Location(id="Zone A", name="East Anchorage"),
-                Location(id="Zone B", name="East Bridge Deck"),
-                Location(id="Zone C", name="West Bridge Deck"),
-                Location(id="Zone D", name="West Anchorage"),
-                Location(id="Zone E", name="Pivot Mechanism"),
-                Location(id="Zone F", name="Structural Core")
-            ]
-            existing = db.query(Location).first()
-
-            if not existing:
-                db.add_all(locs)
-                db.commit()
-            
-            # Users
-            pw_hash = get_password_hash("password123")
-            u1 = User(name="Priya M.", role="inspector", email="priya@aiinspect.pro", team="Quality Inspector", hashed_password=pw_hash)
-            u2 = User(name="Ravi K.", role="inspector", email="ravi@aiinspect.pro", team="Safety Inspector", hashed_password=pw_hash)
-            u3 = User(name="Sanjay V.", role="manager", email="sanjay@aiinspect.pro", team="Project Manager", hashed_password=pw_hash)
-            
-            # Contractor Teams
-            c1 = User(name="Civil Team (Contractor)", role="worker", email="civil@contractor.com", team="Civil Team", hashed_password=pw_hash)
-            c2 = User(name="MEP Team (Contractor)", role="worker", email="mep@contractor.com", team="MEP Team", hashed_password=pw_hash)
-            c3 = User(name="Electrical Team (Contractor)", role="worker", email="electrical@contractor.com", team="Electrical Team", hashed_password=pw_hash)
-            c4 = User(name="Safety Officer", role="worker", email="safety@contractor.com", team="Safety Officer", hashed_password=pw_hash)
-            
-            db.add_all([u1, u2, u3, c1, c2, c3, c4])
-            db.commit()
-            
-            # System Stats (Init to 0)
-            s1 = SystemStats(key="total_captured", value=0)
-            s2 = SystemStats(key="total_resolved", value=0)
-            db.add_all([s1, s2])
-            db.commit()
-            
-            print("Database initialized clean for real-time testing!")
-    finally:
-        db.close()
+    pass
 
 # Helper functions matching Express stats logic
-def get_zone_stats(db: Session):
+def get_zone_stats(db: Session, project_id: int = None):
     stats = {
         'Zone A': {'pct': 88, 'issues': 0},
         'Zone B': {'pct': 61, 'issues': 0},
@@ -130,7 +85,10 @@ def get_zone_stats(db: Session):
         'Zone E': {'pct': 95, 'issues': 0},
         'Zone F': {'pct': 90, 'issues': 0}
     }
-    issues = db.query(Issue.zone).filter(Issue.status != 'resolved').all()
+    query = db.query(Issue.zone).filter(Issue.status != 'resolved')
+    if project_id:
+        query = query.filter(Issue.project_id == project_id)
+    issues = query.all()
     for i in issues:
         if i.zone in stats:
             stats[i.zone]['issues'] += 1
@@ -144,8 +102,11 @@ def get_zone_stats(db: Session):
             stats[z]['color'] = '#E65A5A'  # red
     return stats
 
-def get_metrics(db: Session):
-    open_issues = db.query(Issue).filter(Issue.status != 'resolved').all()
+def get_metrics(db: Session, project_id: int = None):
+    query = db.query(Issue).filter(Issue.status != 'resolved')
+    if project_id:
+        query = query.filter(Issue.project_id == project_id)
+    open_issues = query.all()
     open_count = len(open_issues)
     
     high_count = len([i for i in open_issues if i.sevClass == 'high'])
@@ -172,8 +133,11 @@ def get_metrics(db: Session):
         "openCount": open_count
     }
 
-def get_category_distribution(db: Session):
-    all_issues = db.query(Issue.category).all()
+def get_category_distribution(db: Session, project_id: int = None):
+    query = db.query(Issue.category)
+    if project_id:
+        query = query.filter(Issue.project_id == project_id)
+    all_issues = query.all()
     counts = {'Safety': 0, 'Structural': 0, 'MEP': 0, 'Civil': 0, 'Utilities': 0, 'Quality': 0, 'Uncategorized': 0}
     for i in all_issues:
         cat = i.category or 'Uncategorized'
@@ -188,13 +152,22 @@ def get_category_distribution(db: Session):
             result.append({"name": k, "value": v})
     return result if result else [{"name": "No Data", "value": 1}]
 
-def get_contractor_performance(db: Session):
+def get_contractor_performance(db: Session, project_id: int = None):
     workers = db.query(User).filter(User.role == "worker").all()
     perf = []
     for w in workers:
-        total_assigned = db.query(Issue).filter(Issue.assignee_id == w.id).count()
-        total_resolved = db.query(Issue).filter(Issue.assignee_id == w.id, Issue.status == "resolved").count()
-        rework_count = db.query(AuditLog).join(Issue, AuditLog.issue_id == Issue.id).filter(Issue.assignee_id == w.id, AuditLog.action.like('%Rework%')).count()
+        assigned_q = db.query(Issue).filter(Issue.assignee_id == w.id)
+        resolved_q = db.query(Issue).filter(Issue.assignee_id == w.id, Issue.status == "resolved")
+        rework_q = db.query(AuditLog).join(Issue, AuditLog.issue_id == Issue.id).filter(Issue.assignee_id == w.id, AuditLog.action.like('%Rework%'))
+        
+        if project_id:
+            assigned_q = assigned_q.filter(Issue.project_id == project_id)
+            resolved_q = resolved_q.filter(Issue.project_id == project_id)
+            rework_q = rework_q.filter(Issue.project_id == project_id)
+            
+        total_assigned = assigned_q.count()
+        total_resolved = resolved_q.count()
+        rework_count = rework_q.count()
         
         comp_rate = round((total_resolved / total_assigned * 100)) if total_assigned > 0 else 100
         quality_score = max(50, 100 - (rework_count * 12))
@@ -251,13 +224,41 @@ def login(login_in: schemas.UserLogin, db: Session = Depends(get_db)):
     access_token = create_access_token(subject=user.email)
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.get(f"{settings.API_V1_STR}/auth/me", response_model=schemas.UserResponse)
+def read_users_me(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+    from jose import JWTError, jwt
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+        
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+@app.get(f"{settings.API_V1_STR}/projects", response_model=List[schemas.ProjectResponse])
+def get_projects(db: Session = Depends(get_db)):
+    return db.query(Project).all()
+
 # Dashboard
 @app.get(f"{settings.API_V1_STR}/dashboard", response_model=schemas.DashboardResponse)
-def dashboard(db: Session = Depends(get_db)):
-    metrics = get_metrics(db)
+def dashboard(db: Session = Depends(get_db), project_id: Optional[int] = None):
+    metrics = get_metrics(db, project_id)
     
     # Fetch all issues, joining with User assignee
-    issues_db = db.query(Issue, User.name, User.team).outerjoin(User, Issue.assignee_id == User.id).all()
+    query = db.query(Issue, User.name, User.team).outerjoin(User, Issue.assignee_id == User.id)
+    if project_id:
+        query = query.filter(Issue.project_id == project_id)
+    issues_db = query.all()
     issues = []
     
     # Sort order logic: pending_review, open, in_progress, waiting_for_approval, resolved
@@ -318,7 +319,7 @@ def dashboard(db: Session = Depends(get_db)):
     return schemas.DashboardResponse(
         kpis=kpis,
         trends=trends,
-        zoneStats=get_zone_stats(db),
+        zoneStats=get_zone_stats(db, project_id),
         issues=issues
     )
 
@@ -342,7 +343,7 @@ def create_issue(issue_in: schemas.IssueCreate, db: Session = Depends(get_db)):
         sevLabel=sev_label,
         zone=issue_in.zone,
         project_id=issue_in.project_id or 1,
-        author=issue_in.author or "Priya M. (Inspector)",
+        author=issue_in.author or "Inspector",
         timestamp="Now",
         status="pending_review",
         category=issue_in.tags.split(',')[0] if issue_in.tags else "Quality",
@@ -849,7 +850,7 @@ def capture_photo(image_in: Dict[str, str]):
         raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)}")
 # Export PDF using ReportLab
 @app.get(f"{settings.API_V1_STR}/export/pdf")
-def export_pdf(db: Session = Depends(get_db)):
+def export_pdf(db: Session = Depends(get_db), project_id: Optional[int] = None):
     from io import BytesIO
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
@@ -859,7 +860,10 @@ def export_pdf(db: Session = Depends(get_db)):
     import html
     
     # Fetch issues
-    issues = db.query(Issue).order_by(Issue.status.asc(), Issue.id.desc()).all()
+    query = db.query(Issue).order_by(Issue.status.asc(), Issue.id.desc())
+    if project_id:
+        query = query.filter(Issue.project_id == project_id)
+    issues = query.all()
     
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
@@ -940,7 +944,7 @@ def export_pdf(db: Session = Depends(get_db)):
     meta_data = [
         [Paragraph("Project Name:", meta_label_style), Paragraph("Signature Bridge Construction", meta_val_style),
          Paragraph("Generated Date:", meta_label_style), Paragraph(date_str, meta_val_style)],
-        [Paragraph("Lead Auditor:", meta_label_style), Paragraph("Sanjay V. (Project Manager)", meta_val_style),
+        [Paragraph("Lead Auditor:", meta_label_style), Paragraph("Project Manager", meta_val_style),
          Paragraph("System Status:", meta_label_style), Paragraph("Real-Time Production Database", meta_val_style)]
     ]
     meta_table = Table(meta_data, colWidths=[80, 180, 90, 170])
@@ -1172,12 +1176,15 @@ def export_pdf(db: Session = Depends(get_db)):
 
 # Export CSV
 @app.get(f"{settings.API_V1_STR}/export/csv")
-def export_csv(db: Session = Depends(get_db)):
+def export_csv(db: Session = Depends(get_db), project_id: Optional[int] = None):
     import csv
     import re
     from io import StringIO
     
-    issues = db.query(Issue).order_by(Issue.status.asc(), Issue.id.desc()).all()
+    query = db.query(Issue).order_by(Issue.status.asc(), Issue.id.desc())
+    if project_id:
+        query = query.filter(Issue.project_id == project_id)
+    issues = query.all()
     
     # Use lineterminator='\n' to avoid double \r\r\n on Windows
     output = StringIO()
